@@ -251,7 +251,7 @@ describe("getCurrentUser", () => {
     const user = await getCurrentUser();
 
     expect(fetch).toHaveBeenCalledWith(
-      "/auth/user",
+      "/auth/api/v1/user",
       expect.objectContaining({ credentials: "include" }),
     );
 

@@ -219,7 +219,7 @@ export async function getCurrentUser(opts?: {
 
   try {
     res = await authFetch(
-      "/auth/user",
+      "/auth/api/v1/user",
       { method: "GET" },
       { audience: opts?.audience ?? "app" },
     );
