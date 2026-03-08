@@ -1,7 +1,7 @@
 /**
  * Reads a cookie value by name from `document.cookie`.
  *
- * This is a small internal helper used by the AuthGate browser SDK.
+ * This is a small internal helper used by the Authara browser SDK.
  * It returns `null` if the cookie is not present.
  */
 function getCookie(name: string): string | null {
@@ -12,15 +12,15 @@ function getCookie(name: string): string | null {
 }
 
 /**
- * Returns the AuthGate CSRF token from the browser cookies.
+ * Returns the Authara CSRF token from the browser cookies.
  *
- * The CSRF token is issued by AuthGate and stored in the `authgate_csrf`
+ * The CSRF token is issued by Authara and stored in the `authara_csrf`
  * cookie. This helper does not validate the token; it only reads it.
  *
  * @returns The CSRF token string, or `null` if the cookie is missing.
  */
 export function getCSRFToken(): string | null {
-  return getCookie("authgate_csrf");
+  return getCookie("authara_csrf");
 }
 
 /**
@@ -34,7 +34,7 @@ type LogoutResult =
   | { ok: false; reason: "missing_csrf" | "request_failed" | "unauthorized" };
 
 /**
- * Logs the user out by calling the AuthGate logout endpoint.
+ * Logs the user out by calling the Authara logout endpoint.
  *
  * This function:
  * - Reads the CSRF token from the browser cookies
@@ -89,7 +89,7 @@ export async function logout(opts?: {
 }
 
 /**
- * authFetch performs a fetch request with AuthGate-aware, refresh-once behavior
+ * authFetch performs a fetch request with Authara-aware, refresh-once behavior
  * for a specific audience.
  *
  * Behavior:
@@ -106,12 +106,11 @@ export async function logout(opts?: {
  *
  * @param input The resource to fetch (same as `fetch`).
  * @param init Optional fetch options. Credentials are always included.
- * @param opts Optional AuthGate options.
+ * @param opts Optional Authara options.
  * @param opts.audience The audience for which the request is made (e.g. "app", "admin").
  *        Defaults to "app".
  * @returns The final `Response` from the original request or the retried request.
  */
-
 export async function authFetch(
   input: RequestInfo | URL,
   init: RequestInit = {},
@@ -140,7 +139,7 @@ function withCredentials(init: RequestInit): RequestInit {
 }
 
 /**
- * refreshSession attempts to refresh the current AuthGate session for a
+ * refreshSession attempts to refresh the current Authara session for a
  * specific audience.
  *
  * It performs:

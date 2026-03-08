@@ -11,11 +11,11 @@ import {
 
 describe("getCSRFToken", () => {
   beforeEach(() => {
-    document.cookie = "authgate_csrf=; expires=Thu, 01 Jan 1970 00:00:00 GMT";
+    document.cookie = "authara_csrf=; expires=Thu, 01 Jan 1970 00:00:00 GMT";
   });
 
   it("returns csrf token if present", () => {
-    document.cookie = "authgate_csrf=token123";
+    document.cookie = "authara_csrf=token123";
     expect(getCSRFToken()).toBe("token123");
   });
 
@@ -28,7 +28,7 @@ describe("getCSRFToken", () => {
 
 describe("logout", () => {
   beforeEach(() => {
-    document.cookie = "authgate_csrf=; expires=Thu, 01 Jan 1970 00:00:00 GMT";
+    document.cookie = "authara_csrf=; expires=Thu, 01 Jan 1970 00:00:00 GMT";
 
     vi.stubGlobal(
       "fetch",
@@ -46,7 +46,7 @@ describe("logout", () => {
   });
 
   it("calls logout endpoint with CSRF header", async () => {
-    document.cookie = "authgate_csrf=abc";
+    document.cookie = "authara_csrf=abc";
 
     const result = await logout();
 
@@ -60,7 +60,7 @@ describe("logout", () => {
   });
 
   it("redirects if redirectTo is provided and logout succeeds", async () => {
-    document.cookie = "authgate_csrf=abc";
+    document.cookie = "authara_csrf=abc";
 
     Object.defineProperty(window, "location", {
       value: { href: "" },
@@ -74,7 +74,7 @@ describe("logout", () => {
   });
 
   it("returns unauthorized on 401 response", async () => {
-    document.cookie = "authgate_csrf=abc";
+    document.cookie = "authara_csrf=abc";
 
     vi.stubGlobal(
       "fetch",
@@ -94,7 +94,7 @@ describe("logout", () => {
 
 describe("refreshSession", () => {
   beforeEach(() => {
-    document.cookie = "authgate_csrf=; expires=Thu, 01 Jan 1970 00:00:00 GMT";
+    document.cookie = "authara_csrf=; expires=Thu, 01 Jan 1970 00:00:00 GMT";
     vi.stubGlobal("fetch", vi.fn());
   });
 
@@ -105,7 +105,7 @@ describe("refreshSession", () => {
   });
 
   it("returns true on successful refresh (default audience)", async () => {
-    document.cookie = "authgate_csrf=abc";
+    document.cookie = "authara_csrf=abc";
 
     (fetch as any).mockResolvedValue({
       ok: true,
@@ -124,7 +124,7 @@ describe("refreshSession", () => {
   });
 
   it("returns true on successful refresh (admin audience)", async () => {
-    document.cookie = "authgate_csrf=abc";
+    document.cookie = "authara_csrf=abc";
 
     (fetch as any).mockResolvedValue({
       ok: true,
@@ -143,7 +143,7 @@ describe("refreshSession", () => {
   });
 
   it("returns false on failed refresh", async () => {
-    document.cookie = "authgate_csrf=abc";
+    document.cookie = "authara_csrf=abc";
 
     (fetch as any).mockResolvedValue({
       ok: false,
@@ -159,7 +159,7 @@ describe("refreshSession", () => {
 
 describe("authFetch", () => {
   beforeEach(() => {
-    document.cookie = "authgate_csrf=; expires=Thu, 01 Jan 1970 00:00:00 GMT";
+    document.cookie = "authara_csrf=; expires=Thu, 01 Jan 1970 00:00:00 GMT";
     vi.stubGlobal("fetch", vi.fn());
   });
 
@@ -175,7 +175,7 @@ describe("authFetch", () => {
   });
 
   it("returns 401 if refresh fails (default audience)", async () => {
-    document.cookie = "authgate_csrf=abc";
+    document.cookie = "authara_csrf=abc";
 
     (fetch as any)
       // initial request
@@ -195,7 +195,7 @@ describe("authFetch", () => {
   });
 
   it("retries request once if refresh succeeds (default audience)", async () => {
-    document.cookie = "authgate_csrf=abc";
+    document.cookie = "authara_csrf=abc";
 
     (fetch as any)
       // initial request
@@ -212,7 +212,7 @@ describe("authFetch", () => {
   });
 
   it("refreshes with explicit admin audience", async () => {
-    document.cookie = "authgate_csrf=abc";
+    document.cookie = "authara_csrf=abc";
 
     (fetch as any)
       .mockResolvedValueOnce({ status: 401 } as Response)
@@ -273,7 +273,7 @@ describe("getCurrentUser", () => {
   });
 
   it("attempts refresh once if initial request is 401 and succeeds", async () => {
-    document.cookie = "authgate_csrf=abc";
+    document.cookie = "authara_csrf=abc";
 
     (fetch as any)
       // initial /auth/user
@@ -309,7 +309,7 @@ describe("getCurrentUser", () => {
   });
 
   it("returns null if refresh fails after 401", async () => {
-    document.cookie = "authgate_csrf=abc";
+    document.cookie = "authara_csrf=abc";
 
     (fetch as any)
       // initial /auth/user
@@ -335,7 +335,7 @@ describe("getCurrentUser", () => {
   });
 
   it("passes explicit audience to refresh via authFetch", async () => {
-    document.cookie = "authgate_csrf=abc";
+    document.cookie = "authara_csrf=abc";
 
     (fetch as any)
       // initial /auth/user

@@ -1,4 +1,4 @@
-name: Publish @authgate/browser
+name: Publish @authara/browser
 
 on:
   push:

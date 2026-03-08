@@ -1,9 +1,9 @@
-# @authgate/browser
+# @authara/browser
 
-Minimal browser-side helpers for applications using **AuthGate**.
+Minimal browser-side helpers for applications using **Authara**.
 
 This package provides **explicit, framework-agnostic primitives** for integrating
-browser-based UIs (SSR or SPA) with an AuthGate-backed authentication system.
+browser-based UIs (SSR or SPA) with an Authara-backed authentication system.
 
 It intentionally avoids hidden behavior, background state mutation, or
 framework-specific abstractions.
@@ -22,7 +22,7 @@ framework-specific abstractions.
 
 ## Features
 
-- Read AuthGate CSRF token from browser cookies
+- Read Authara CSRF token from browser cookies
 - Perform a CSRF-protected logout request
 - Explicit browser-side session refresh **with audience selection**
 - Optional `fetch` wrapper with **single-retry refresh semantics**
@@ -35,7 +35,7 @@ framework-specific abstractions.
 ## Installation
 
 ```bash
-npm install @authgate/browser
+npm install @authara/browser
 ```
 
 ---
@@ -45,12 +45,12 @@ npm install @authgate/browser
 ### Read CSRF token
 
 ```ts
-import { getCSRFToken } from "@authgate/browser";
+import { getCSRFToken } from "@authara/browser";
 
 const csrf = getCSRFToken();
 ```
 
-Returns the value of the `authgate_csrf` cookie, or `null` if not present.
+Returns the value of the `authara_csrf` cookie, or `null` if not present.
 
 This function only **reads** the CSRF token.  
 It does not generate or validate it.
@@ -60,7 +60,7 @@ It does not generate or validate it.
 ## Logout
 
 ```ts
-import { logout } from "@authgate/browser";
+import { logout } from "@authara/browser";
 
 const result = await logout();
 ```
@@ -101,12 +101,12 @@ Redirecting is an optional side-effect and does **not** define success.
 ### `refreshSession`
 
 ```ts
-import { refreshSession } from "@authgate/browser";
+import { refreshSession } from "@authara/browser";
 
 const refreshed = await refreshSession("app");
 ```
 
-Attempts to refresh the current AuthGate session by calling:
+Attempts to refresh the current Authara session by calling:
 
 ```text
 POST /auth/refresh
@@ -119,7 +119,7 @@ with an explicit **audience declaration**.
 The audience determines **which access token is minted** (e.g. `"app"`, `"admin"`).
 
 - The client explicitly requests an audience
-- AuthGate validates the requested audience against the user’s roles
+- Authara validates the requested audience against the user’s roles
 - Requests for unauthorized audiences fail with `401`
 
 If no audience is provided, `"app"` is used by default.
@@ -145,13 +145,13 @@ It is intended for applications that want **manual control** over refresh logic.
 ### `authFetch`
 
 ```ts
-import { authFetch } from "@authgate/browser";
+import { authFetch } from "@authara/browser";
 
 const res = await authFetch("/api/data");
 ```
 
 `authFetch` is an **optional convenience wrapper** around `fetch` with
-AuthGate-aware refresh behavior.
+Authara-aware refresh behavior.
 
 ### Behavior
 
@@ -207,9 +207,9 @@ const res = await authFetch(
 ## Security model
 
 - CSRF tokens are **not generated** by this package
-- CSRF validation is **enforced by AuthGate**
+- CSRF validation is **enforced by Authara**
 - Refresh tokens are **never exposed to JavaScript**
-- All authentication state is owned by AuthGate
+- All authentication state is owned by Authara
 - Audiences are **explicitly requested and server-validated**
 
 This package only forwards existing browser state explicitly.
@@ -233,7 +233,7 @@ while preserving full application control.
 
 ## Compatibility
 
-- Works with any backend protected by AuthGate
+- Works with any backend protected by Authara
 - Supports SSR, SPA, and hybrid architectures
 
 ---
