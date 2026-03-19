@@ -133,11 +133,14 @@ describe("refreshSession", () => {
 
     const ok = await refreshSession("admin");
 
-    expect(fetch).toHaveBeenCalledWith("/auth/sessions/refresh?audience=admin", {
-      method: "POST",
-      headers: { "X-CSRF-Token": "abc" },
-      credentials: "include",
-    });
+    expect(fetch).toHaveBeenCalledWith(
+      "/auth/sessions/refresh?audience=admin",
+      {
+        method: "POST",
+        headers: { "X-CSRF-Token": "abc" },
+        credentials: "include",
+      },
+    );
 
     expect(ok).toBe(true);
   });
