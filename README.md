@@ -67,7 +67,7 @@ const result = await logout();
 
 This will:
 
-- Send a `POST /auth/logout` request
+- Send a `POST /auth/sessions/logout` request
 - Attach the CSRF token via `X-CSRF-Token`
 - Include credentials (`cookies`)
 

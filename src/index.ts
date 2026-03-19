@@ -38,7 +38,7 @@ type LogoutResult =
  *
  * This function:
  * - Reads the CSRF token from the browser cookies
- * - Sends a POST request to `/auth/logout`
+ * - Sends a POST request to `/auth/sessions/logout`
  * - Optionally redirects the browser on success
  *
  * Redirecting is a side-effect and does not define success. Applications
@@ -60,7 +60,7 @@ export async function logout(opts?: {
   let res: Response;
 
   try {
-    res = await fetch("/auth/logout", {
+    res = await fetch("/auth/sessions/logout", {
       method: "POST",
       headers: {
         "X-CSRF-Token": csrf,

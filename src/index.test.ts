@@ -50,7 +50,7 @@ describe("logout", () => {
 
     const result = await logout();
 
-    expect(fetch).toHaveBeenCalledWith("/auth/logout", {
+    expect(fetch).toHaveBeenCalledWith("/auth/sessions/logout", {
       method: "POST",
       headers: { "X-CSRF-Token": "abc" },
       credentials: "include",
