@@ -30,6 +30,10 @@ framework-specific abstractions.
 - Optional redirect on logout
 - No runtime dependencies
 
+The regular JSON API client is generated from Authara's OpenAPI contract. It
+includes the browser-facing `/auth/api/v1` endpoints and excludes internal
+server-to-server endpoints.
+
 ---
 
 ## Installation
@@ -37,6 +41,25 @@ framework-specific abstractions.
 ```bash
 npm install @authara/browser
 ```
+
+## Generated API client
+
+```ts
+import { AutharaBrowserClient } from "@authara/browser";
+
+const authara = new AutharaBrowserClient();
+
+const user = await authara.getCurrentUser();
+await authara.updatePublicOrganization({
+  organizationID: "organization-id",
+  body: { name: "New name" },
+});
+```
+
+The generated client uses browser cookies, includes credentials, attaches the
+CSRF header when required by the contract, and throws `AutharaApiError` for
+non-successful responses. It does not refresh, retry, redirect, or store
+tokens implicitly.
 
 ---
 

@@ -50,7 +50,7 @@ describe("logout", () => {
 
     const result = await logout();
 
-    expect(fetch).toHaveBeenCalledWith("/auth/sessions/logout", {
+    expect(fetch).toHaveBeenCalledWith("/auth/api/v1/sessions/logout", {
       method: "POST",
       headers: { "X-CSRF-Token": "abc" },
       credentials: "include",
@@ -114,11 +114,14 @@ describe("refreshSession", () => {
 
     const ok = await refreshSession("app");
 
-    expect(fetch).toHaveBeenCalledWith("/auth/sessions/refresh?audience=app", {
-      method: "POST",
-      headers: { "X-CSRF-Token": "abc" },
-      credentials: "include",
-    });
+    expect(fetch).toHaveBeenCalledWith(
+      "/auth/api/v1/sessions/refresh?audience=app",
+      {
+        method: "POST",
+        headers: { "X-CSRF-Token": "abc" },
+        credentials: "include",
+      },
+    );
 
     expect(ok).toBe(true);
   });
@@ -134,7 +137,7 @@ describe("refreshSession", () => {
     const ok = await refreshSession("admin");
 
     expect(fetch).toHaveBeenCalledWith(
-      "/auth/sessions/refresh?audience=admin",
+      "/auth/api/v1/sessions/refresh?audience=admin",
       {
         method: "POST",
         headers: { "X-CSRF-Token": "abc" },
@@ -191,7 +194,7 @@ describe("authFetch", () => {
     expect(fetch).toHaveBeenCalledTimes(2);
     expect(fetch).toHaveBeenNthCalledWith(
       2,
-      "/auth/sessions/refresh?audience=app",
+      "/auth/api/v1/sessions/refresh?audience=app",
       expect.any(Object),
     );
     expect(res.status).toBe(401);
@@ -226,7 +229,7 @@ describe("authFetch", () => {
 
     expect(fetch).toHaveBeenNthCalledWith(
       2,
-      "/auth/sessions/refresh?audience=admin",
+      "/auth/api/v1/sessions/refresh?audience=admin",
       expect.any(Object),
     );
     expect(res.status).toBe(200);
@@ -300,7 +303,7 @@ describe("getCurrentUser", () => {
 
     expect(fetch).toHaveBeenNthCalledWith(
       2,
-      "/auth/sessions/refresh?audience=app",
+      "/auth/api/v1/sessions/refresh?audience=app",
       expect.any(Object),
     );
 
@@ -360,7 +363,7 @@ describe("getCurrentUser", () => {
 
     expect(fetch).toHaveBeenNthCalledWith(
       2,
-      "/auth/sessions/refresh?audience=admin",
+      "/auth/api/v1/sessions/refresh?audience=admin",
       expect.any(Object),
     );
 

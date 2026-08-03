@@ -1,27 +1,14 @@
-/**
- * Reads a cookie value by name from `document.cookie`.
- *
- * This is a small internal helper used by the Authara browser SDK.
- * It returns `null` if the cookie is not present.
- */
-function getCookie(name: string): string | null {
-  const match = document.cookie
-    .split("; ")
-    .find((c) => c.startsWith(name + "="));
-  return match ? decodeURIComponent(match.split("=")[1]) : null;
-}
+import { AutharaBrowserClient } from "./generated/api.js";
+import { AutharaApiError } from "./client.js";
+import { getCSRFToken } from "./cookies.js";
+export * from "./generated/api.js";
+export * from "./generated/types.js";
+export { AutharaApiError, AutharaCSRFError, AutharaClient } from "./client.js";
+export type { AutharaClientOptions } from "./client.js";
+export { getCookie, getCSRFToken } from "./cookies.js";
+import type * as API from "./generated/types.js";
 
-/**
- * Returns the Authara CSRF token from the browser cookies.
- *
- * The CSRF token is issued by Authara and stored in the `authara_csrf`
- * cookie. This helper does not validate the token; it only reads it.
- *
- * @returns The CSRF token string, or `null` if the cookie is missing.
- */
-export function getCSRFToken(): string | null {
-  return getCookie("authara_csrf");
-}
+const api = new AutharaBrowserClient();
 
 /**
  * The result of a logout attempt.
@@ -29,7 +16,7 @@ export function getCSRFToken(): string | null {
  * - `{ ok: true }` indicates that logout succeeded.
  * - `{ ok: false, reason }` indicates that logout failed for a known reason.
  */
-type LogoutResult =
+export type LogoutResult =
   | { ok: true }
   | { ok: false; reason: "missing_csrf" | "request_failed" | "unauthorized" };
 
@@ -38,7 +25,7 @@ type LogoutResult =
  *
  * This function:
  * - Reads the CSRF token from the browser cookies
- * - Sends a POST request to `/auth/sessions/logout`
+ * - Sends a POST request to `/auth/api/v1/sessions/logout`
  * - Optionally redirects the browser on success
  *
  * Redirecting is a side-effect and does not define success. Applications
@@ -57,25 +44,14 @@ export async function logout(opts?: {
     return { ok: false, reason: "missing_csrf" };
   }
 
-  let res: Response;
-
   try {
-    res = await fetch("/auth/sessions/logout", {
-      method: "POST",
-      headers: {
-        "X-CSRF-Token": csrf,
-      },
-      credentials: "include",
-    });
-  } catch {
-    return { ok: false, reason: "request_failed" };
-  }
-
-  if (!res.ok) {
+    await api.logout();
+  } catch (error) {
     return {
       ok: false,
       reason:
-        res.status === 401 || res.status === 403
+        error instanceof AutharaApiError &&
+        (error.status === 401 || error.status === 403)
           ? "unauthorized"
           : "request_failed",
     };
@@ -97,7 +73,7 @@ export async function logout(opts?: {
  * - Performs the initial request as-is
  * - If the response is NOT 401, returns it directly
  * - If the response IS 401:
- *   - Attempts POST /auth/sessions/refresh with CSRF and the same requested audience
+ *   - Attempts POST /auth/api/v1/sessions/refresh with CSRF and the same requested audience
  *   - If refresh succeeds, retries the original request ONCE
  *   - If refresh fails, returns the original 401 response
  *
@@ -143,7 +119,7 @@ function withCredentials(init: RequestInit): RequestInit {
  * specific audience.
  *
  * It performs:
- *   POST /auth/sessions/refresh
+ *   POST /auth/api/v1/sessions/refresh
  *   with CSRF protection, credentials, and an explicit audience declaration.
  *
  * The server validates the requested audience against the user's roles and
@@ -162,44 +138,20 @@ export async function refreshSession(
     return false;
   }
 
-  let res: Response;
-
   try {
-    res = await fetch(
-      `/auth/sessions/refresh?audience=${encodeURIComponent(audience)}`,
-      {
-        method: "POST",
-        headers: {
-          "X-CSRF-Token": csrf,
-        },
-        credentials: "include",
-      },
-    );
+    await api.refreshSession({ audience: audience as "app" | "admin" });
+    return true;
   } catch {
     return false;
   }
-
-  return res.ok;
 }
-
-export type CurrentUser = {
-  id: string;
-  email: string;
-  username: string;
-
-  /** Whether the user account is disabled */
-  disabled: boolean;
-
-  /** Account creation time (ISO 8601) */
-  created_at: string; // ISO timestamp
-};
 
 /**
  * Fetches the currently authenticated user's identity.
  *
  * Behavior:
- * - Calls GET /auth/user using credentials (cookies)
- * - If the access token is expired, authFetch attempts a single refresh
+ * - Calls GET /auth/api/v1/user using credentials (cookies)
+ * - If the access token is expired, the helper attempts a single refresh
  * - If refresh succeeds, the request is retried once
  * - If the user is not authenticated, returns null
  *
@@ -213,30 +165,20 @@ export type CurrentUser = {
  */
 export async function getCurrentUser(opts?: {
   audience?: string;
-}): Promise<CurrentUser | null> {
-  let res: Response;
-
+}): Promise<API.CurrentUser | null> {
   try {
-    res = await authFetch(
-      "/auth/api/v1/user",
-      { method: "GET" },
-      { audience: opts?.audience ?? "app" },
-    );
-  } catch {
-    return null;
-  }
+    return (await api.getCurrentUser()) ?? null;
+  } catch (error) {
+    if (!(error instanceof AutharaApiError) || error.status !== 401) {
+      return null;
+    }
 
-  if (res.status === 401) {
-    return null;
-  }
+    if (!(await refreshSession(opts?.audience ?? "app"))) return null;
 
-  if (!res.ok) {
-    return null;
-  }
-
-  try {
-    return (await res.json()) as CurrentUser;
-  } catch {
-    return null;
+    try {
+      return (await api.getCurrentUser()) ?? null;
+    } catch {
+      return null;
+    }
   }
 }
