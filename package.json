@@ -17,10 +17,17 @@
   "files": [
     "dist/index.js",
     "dist/index.d.ts",
+    "dist/client.js",
+    "dist/client.d.ts",
+    "dist/cookies.js",
+    "dist/cookies.d.ts",
+    "dist/generated",
     "README.md",
     "LICENSE"
   ],
   "scripts": {
+    "generate": "node scripts/generate.mjs",
+    "check:generated": "node scripts/generate.mjs --check",
     "format": "prettier --write \"src/**/*.{ts,tsx,js}\"",
     "check:format": "prettier --check \"src/**/*.{ts,tsx,js}\"",
     "lint": "eslint \"src/**/*.{ts,tsx,js}\"",
@@ -37,6 +44,7 @@
     "prettier": "^3.8.1",
     "typescript": "^5.9.3",
     "typescript-eslint": "^8.54.0",
-    "vitest": "^4.0.18"
+    "vitest": "^4.0.18",
+    "yaml": "^2.9.0"
   }
 }
