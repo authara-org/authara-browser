@@ -63,6 +63,14 @@ export type FinishPasskeyRegistrationOptions = {
   body: API.PasskeyRegistrationFinishRequest;
 };
 
+export type StartPasswordResetChallengeOptions = {
+  body: API.PasswordResetRequest;
+};
+
+export type VerifyPasswordResetChallengeOptions = {
+  body: API.PasswordResetChallengeVerification;
+};
+
 export type RefreshSessionOptions = {
   audience?: "app" | "admin";
 };
@@ -84,6 +92,10 @@ export type SignupDirectOptions = {
 
 export type RefreshTokensOptions = {
   body: API.TokenRefreshRequest;
+};
+
+export type SetCurrentUserPasswordOptions = {
+  body: API.SetPasswordRequest;
 };
 
 export type ListPublicUserMembershipsOptions = {
@@ -268,6 +280,26 @@ export class AutharaBrowserClient extends AutharaClient {
     );
   }
 
+  public startPasswordResetChallenge(
+    options: StartPasswordResetChallengeOptions,
+  ): Promise<API.ChallengeReference> {
+    return this.request<API.ChallengeReference>(
+      "POST",
+      `/auth/api/v1/password-reset/challenges`,
+      { body: options.body, csrf: true },
+    );
+  }
+
+  public verifyPasswordResetChallenge(
+    options: VerifyPasswordResetChallengeOptions,
+  ): Promise<void> {
+    return this.request<void>(
+      "POST",
+      `/auth/api/v1/password-reset/challenges/verify`,
+      { body: options.body, csrf: true },
+    );
+  }
+
   public logout(): Promise<void> {
     return this.request<void>("POST", `/auth/api/v1/sessions/logout`, {
       csrf: true,
@@ -325,6 +357,15 @@ export class AutharaBrowserClient extends AutharaClient {
 
   public getCurrentUser(): Promise<API.CurrentUser> {
     return this.request<API.CurrentUser>("GET", `/auth/api/v1/user`);
+  }
+
+  public setCurrentUserPassword(
+    options: SetCurrentUserPasswordOptions,
+  ): Promise<void> {
+    return this.request<void>("PUT", `/auth/api/v1/users/password`, {
+      body: options.body,
+      csrf: true,
+    });
   }
 
   public listPublicUserMemberships(

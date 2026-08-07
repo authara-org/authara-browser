@@ -171,6 +171,20 @@ export interface PasswordLoginRequest {
   password: string;
 }
 
+export interface PasswordResetChallengeVerification {
+  challenge_id: string;
+  code: string;
+}
+
+export interface PasswordResetRequest {
+  email: string;
+  new_password: string;
+}
+
+export interface SetPasswordRequest {
+  password: string;
+}
+
 export interface SignupChallenge {
   challenge_id: string;
 }
