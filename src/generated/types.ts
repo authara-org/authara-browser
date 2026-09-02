@@ -5,6 +5,49 @@ export interface APIError {
   message: string;
 }
 
+export interface Account {
+  user: AuthUser;
+  sessions: Array<AccountSession>;
+  auth_methods: Array<AuthMethod>;
+  passkeys: Array<AccountPasskey>;
+}
+
+export interface AccountPasskey {
+  id: string;
+  name: string;
+  created_at: string;
+  last_used_at?: string;
+}
+
+export interface AccountRecoveryGoogleProofRequest {
+  credential: string;
+  nonce: string;
+  invitation_token?: string;
+}
+
+export interface AccountRecoveryLink {
+  link_id: string;
+  proof_methods: Array<"password" | "google">;
+}
+
+export interface AccountRecoveryPasswordProofRequest {
+  password: string;
+  invitation_token?: string;
+}
+
+export interface AccountSession {
+  id: string;
+  current: boolean;
+  created_at: string;
+  expires_at: string;
+  user_agent: string;
+}
+
+export interface AuthMethod {
+  provider: "password" | "google";
+  created_at: string;
+}
+
 export interface AuthSession {
   user: AuthUser;
   access_token: string;
@@ -37,6 +80,20 @@ export interface ChallengeReference {
   challenge_id: string;
 }
 
+export interface ChallengeVerification {
+  challenge_id: string;
+  code: string;
+}
+
+export interface ChangePasswordRequest {
+  current_password: string;
+  new_password: string;
+}
+
+export interface ChangeUsernameRequest {
+  username: string;
+}
+
 export interface CurrentOrganizationMember {
   user_id: string;
   email: string;
@@ -59,6 +116,10 @@ export interface CurrentUser {
   organization: OrganizationSummary;
 }
 
+export interface EmailChangeRequest {
+  new_email: string;
+}
+
 export interface ErrorResponse {
   error: APIError;
 }
@@ -71,6 +132,33 @@ export interface GoogleLoginOptions {
 export interface GoogleLoginRequest {
   credential: string;
   nonce: string;
+}
+
+export interface InvitationGoogleRequest {
+  token: string;
+  credential: string;
+  nonce: string;
+  flow: "signup" | "login";
+}
+
+export interface InvitationGoogleResult {
+  status: "authenticated" | "proof_required";
+  session?: AuthSession;
+  recovery?: AccountRecoveryLink;
+}
+
+export interface InvitationPasswordLoginRequest {
+  token: string;
+  password: string;
+}
+
+export interface InvitationPreview {
+  invitation: OrganizationInvitation;
+  organization: Organization;
+}
+
+export interface InvitationTokenRequest {
+  token: string;
 }
 
 export interface Membership {

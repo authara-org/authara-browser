@@ -23,11 +23,9 @@ framework-specific abstractions.
 ## Features
 
 - Read Authara CSRF token from browser cookies
-- Perform a CSRF-protected logout request
-- Explicit browser-side session refresh **with audience selection**
+- Call every browser-facing Authara endpoint through the generated client
+- Optional automatic session refresh **with audience selection**
 - Optional `fetch` wrapper with **single-retry refresh semantics**
-- Clear success / failure signaling
-- Optional redirect on logout
 - No runtime dependencies
 
 The regular JSON API client is generated from Authara's OpenAPI contract. It
@@ -58,8 +56,38 @@ await authara.updatePublicOrganization({
 
 The generated client uses browser cookies, includes credentials, attaches the
 CSRF header when required by the contract, and throws `AutharaApiError` for
-non-successful responses. It does not refresh, retry, redirect, or store
-tokens implicitly.
+non-successful responses. By default, it does not refresh, retry, redirect, or
+store tokens implicitly.
+
+Every public and user operation under `/auth/api/v1` is generated. Internal
+server-to-server operations under `/auth/internal/v1` are intentionally not
+included in the browser SDK.
+
+### Optional automatic refresh
+
+Automatic refresh is enabled explicitly when constructing the client:
+
+```ts
+const authara = new AutharaBrowserClient({
+  automaticRefresh: { audience: "app" },
+});
+
+const user = await authara.getCurrentUser();
+```
+
+With automatic refresh enabled, generated calls that receive `401 Unauthorized`
+attempt one session refresh and retry once. A `403 Forbidden` response is not
+refreshed because it represents insufficient permission, not an expired access
+session. If refresh is disabled or unsuccessful, the generated call throws its
+original `AutharaApiError`. Parallel protected calls share one in-flight refresh
+per client instance.
+
+The refresh and logout endpoints themselves are generated calls:
+
+```ts
+await authara.refreshSession({ audience: "app" });
+await authara.logout();
+```
 
 ---
 
@@ -75,91 +103,8 @@ const csrf = getCSRFToken();
 
 Returns the value of the `authara_csrf` cookie, or `null` if not present.
 
-This function only **reads** the CSRF token.  
+This function only **reads** the CSRF token.
 It does not generate or validate it.
-
----
-
-## Logout
-
-```ts
-import { logout } from "@authara/browser";
-
-const result = await logout();
-```
-
-This will:
-
-- Send a `POST /auth/sessions/logout` request
-- Attach the CSRF token via `X-CSRF-Token`
-- Include credentials (`cookies`)
-
-The function returns an explicit result:
-
-```ts
-type LogoutResult =
-  | { ok: true }
-  | { ok: false; reason: "missing_csrf" | "request_failed" | "unauthorized" };
-```
-
-Applications that do not need to react programmatically may safely ignore the
-return value.
-
----
-
-### Logout with redirect
-
-```ts
-await logout({ redirectTo: "/" });
-```
-
-If the logout request succeeds, the browser is redirected to the given path.
-
-Redirecting is an optional side-effect and does **not** define success.
-
----
-
-## Session refresh (explicit)
-
-### `refreshSession`
-
-```ts
-import { refreshSession } from "@authara/browser";
-
-const refreshed = await refreshSession("app");
-```
-
-Attempts to refresh the current Authara session by calling:
-
-```text
-POST /auth/refresh
-```
-
-with an explicit **audience declaration**.
-
-### Audience
-
-The audience determines **which access token is minted** (e.g. `"app"`, `"admin"`).
-
-- The client explicitly requests an audience
-- Authara validates the requested audience against the user’s roles
-- Requests for unauthorized audiences fail with `401`
-
-If no audience is provided, `"app"` is used by default.
-
-### Behavior
-
-- Returns `true` if refresh succeeded
-- Returns `false` if refresh failed for any reason
-
-This function:
-
-- does **not** retry
-- does **not** redirect
-- does **not** throw
-- does **not** modify application state
-
-It is intended for applications that want **manual control** over refresh logic.
 
 ---
 

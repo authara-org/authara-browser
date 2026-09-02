@@ -3,8 +3,63 @@
 import { AutharaClient } from "../client.js";
 import type * as API from "./types.js";
 
+export type LinkCurrentUserGoogleOptions = {
+  body: API.GoogleLoginRequest;
+};
+
+export type UnlinkCurrentUserAuthMethodOptions = {
+  provider: "password" | "google";
+};
+
+export type StartCurrentUserEmailChangeOptions = {
+  body: API.EmailChangeRequest;
+};
+
+export type VerifyCurrentUserEmailChangeOptions = {
+  body: API.ChallengeVerification;
+};
+
+export type DeleteCurrentUserPasskeyOptions = {
+  passkeyID: string;
+};
+
+export type AddCurrentUserPasswordOptions = {
+  body: API.SetPasswordRequest;
+};
+
+export type ChangeCurrentUserPasswordOptions = {
+  body: API.ChangePasswordRequest;
+};
+
+export type RevokeCurrentUserSessionOptions = {
+  sessionID: string;
+};
+
+export type ChangeCurrentUsernameOptions = {
+  body: API.ChangeUsernameRequest;
+};
+
 export type ResendChallengeOptions = {
   body: API.ChallengeReference;
+};
+
+export type AcceptInvitationOptions = {
+  audience?: "app";
+  body: API.InvitationTokenRequest;
+};
+
+export type AuthenticateAndAcceptInvitationWithGoogleOptions = {
+  audience?: "app";
+  body: API.InvitationGoogleRequest;
+};
+
+export type LoginAndAcceptInvitationOptions = {
+  audience?: "app";
+  body: API.InvitationPasswordLoginRequest;
+};
+
+export type PreviewInvitationOptions = {
+  token: string;
 };
 
 export type LoginWithPasswordOptions = {
@@ -71,6 +126,22 @@ export type VerifyPasswordResetChallengeOptions = {
   body: API.PasswordResetChallengeVerification;
 };
 
+export type StartGoogleAccountRecoveryLinkOptions = {
+  body: API.GoogleLoginRequest;
+};
+
+export type CompleteAccountRecoveryLinkWithGoogleOptions = {
+  linkID: string;
+  audience?: "app";
+  body: API.AccountRecoveryGoogleProofRequest;
+};
+
+export type CompleteAccountRecoveryLinkWithPasswordOptions = {
+  linkID: string;
+  audience?: "app";
+  body: API.AccountRecoveryPasswordProofRequest;
+};
+
 export type RefreshSessionOptions = {
   audience?: "app" | "admin";
 };
@@ -103,8 +174,114 @@ export type ListPublicUserMembershipsOptions = {
 };
 
 export class AutharaBrowserClient extends AutharaClient {
+  public getCurrentAccount(): Promise<API.Account> {
+    return this.request<API.Account>("GET", `/auth/api/v1/account`, {
+      authenticated: true,
+    });
+  }
+
+  public linkCurrentUserGoogle(
+    options: LinkCurrentUserGoogleOptions,
+  ): Promise<void> {
+    return this.request<void>(
+      "POST",
+      `/auth/api/v1/account/auth-methods/google`,
+      { body: options.body, csrf: true, authenticated: true },
+    );
+  }
+
+  public unlinkCurrentUserAuthMethod(
+    options: UnlinkCurrentUserAuthMethodOptions,
+  ): Promise<void> {
+    return this.request<void>(
+      "DELETE",
+      `/auth/api/v1/account/auth-methods/${encodeURIComponent(String(options.provider))}`,
+      { csrf: true, authenticated: true },
+    );
+  }
+
+  public startCurrentUserEmailChange(
+    options: StartCurrentUserEmailChangeOptions,
+  ): Promise<API.ChallengeReference> {
+    return this.request<API.ChallengeReference>(
+      "POST",
+      `/auth/api/v1/account/email-change/challenges`,
+      { body: options.body, csrf: true, authenticated: true },
+    );
+  }
+
+  public verifyCurrentUserEmailChange(
+    options: VerifyCurrentUserEmailChangeOptions,
+  ): Promise<void> {
+    return this.request<void>(
+      "POST",
+      `/auth/api/v1/account/email-change/challenges/verify`,
+      { body: options.body, csrf: true, authenticated: true },
+    );
+  }
+
+  public deleteCurrentUserPasskey(
+    options: DeleteCurrentUserPasskeyOptions,
+  ): Promise<void> {
+    return this.request<void>(
+      "DELETE",
+      `/auth/api/v1/account/passkeys/${encodeURIComponent(String(options.passkeyID))}`,
+      { csrf: true, authenticated: true },
+    );
+  }
+
+  public addCurrentUserPassword(
+    options: AddCurrentUserPasswordOptions,
+  ): Promise<void> {
+    return this.request<void>("POST", `/auth/api/v1/account/password`, {
+      body: options.body,
+      csrf: true,
+      authenticated: true,
+    });
+  }
+
+  public changeCurrentUserPassword(
+    options: ChangeCurrentUserPasswordOptions,
+  ): Promise<void> {
+    return this.request<void>("PUT", `/auth/api/v1/account/password`, {
+      body: options.body,
+      csrf: true,
+      authenticated: true,
+    });
+  }
+
+  public revokeCurrentUserOtherSessions(): Promise<void> {
+    return this.request<void>(
+      "DELETE",
+      `/auth/api/v1/account/sessions/others`,
+      { csrf: true, authenticated: true },
+    );
+  }
+
+  public revokeCurrentUserSession(
+    options: RevokeCurrentUserSessionOptions,
+  ): Promise<void> {
+    return this.request<void>(
+      "DELETE",
+      `/auth/api/v1/account/sessions/${encodeURIComponent(String(options.sessionID))}`,
+      { csrf: true, authenticated: true },
+    );
+  }
+
+  public changeCurrentUsername(
+    options: ChangeCurrentUsernameOptions,
+  ): Promise<void> {
+    return this.request<void>("PATCH", `/auth/api/v1/account/username`, {
+      body: options.body,
+      csrf: true,
+      authenticated: true,
+    });
+  }
+
   public getPublicCapabilities(): Promise<API.Capabilities> {
-    return this.request<API.Capabilities>("GET", `/auth/api/v1/capabilities`);
+    return this.request<API.Capabilities>("GET", `/auth/api/v1/capabilities`, {
+      authenticated: true,
+    });
   }
 
   public resendChallenge(options: ResendChallengeOptions): Promise<void> {
@@ -116,6 +293,55 @@ export class AutharaBrowserClient extends AutharaClient {
 
   public getCsrfToken(): Promise<API.CSRFToken> {
     return this.request<API.CSRFToken>("GET", `/auth/api/v1/csrf`);
+  }
+
+  public acceptInvitation(
+    options: AcceptInvitationOptions,
+  ): Promise<API.Tokens> {
+    return this.request<API.Tokens>("POST", `/auth/api/v1/invitations/accept`, {
+      query: { audience: options?.audience },
+      body: options.body,
+      csrf: true,
+      authenticated: true,
+    });
+  }
+
+  public authenticateAndAcceptInvitationWithGoogle(
+    options: AuthenticateAndAcceptInvitationWithGoogleOptions,
+  ): Promise<API.InvitationGoogleResult> {
+    return this.request<API.InvitationGoogleResult>(
+      "POST",
+      `/auth/api/v1/invitations/google`,
+      {
+        query: { audience: options?.audience },
+        body: options.body,
+        csrf: true,
+      },
+    );
+  }
+
+  public loginAndAcceptInvitation(
+    options: LoginAndAcceptInvitationOptions,
+  ): Promise<API.AuthSession> {
+    return this.request<API.AuthSession>(
+      "POST",
+      `/auth/api/v1/invitations/login`,
+      {
+        query: { audience: options?.audience },
+        body: options.body,
+        csrf: true,
+      },
+    );
+  }
+
+  public previewInvitation(
+    options: PreviewInvitationOptions,
+  ): Promise<API.InvitationPreview> {
+    return this.request<API.InvitationPreview>(
+      "GET",
+      `/auth/api/v1/invitations/preview`,
+      { query: { token: options?.token } },
+    );
   }
 
   public loginWithPassword(
@@ -149,6 +375,7 @@ export class AutharaBrowserClient extends AutharaClient {
     return this.request<API.OrganizationSummaries>(
       "GET",
       `/auth/api/v1/organizations`,
+      { authenticated: true },
     );
   }
 
@@ -156,6 +383,7 @@ export class AutharaBrowserClient extends AutharaClient {
     return this.request<API.OrganizationSummary>(
       "GET",
       `/auth/api/v1/organizations/current`,
+      { authenticated: true },
     );
   }
 
@@ -163,6 +391,7 @@ export class AutharaBrowserClient extends AutharaClient {
     return this.request<API.CurrentOrganizationMembers>(
       "GET",
       `/auth/api/v1/organizations/current/members`,
+      { authenticated: true },
     );
   }
 
@@ -172,6 +401,7 @@ export class AutharaBrowserClient extends AutharaClient {
     return this.request<API.OrganizationEnvelope>(
       "GET",
       `/auth/api/v1/organizations/${encodeURIComponent(String(options.organizationID))}`,
+      { authenticated: true },
     );
   }
 
@@ -181,7 +411,7 @@ export class AutharaBrowserClient extends AutharaClient {
     return this.request<API.OrganizationEnvelope>(
       "PATCH",
       `/auth/api/v1/organizations/${encodeURIComponent(String(options.organizationID))}`,
-      { body: options.body, csrf: true },
+      { body: options.body, csrf: true, authenticated: true },
     );
   }
 
@@ -191,6 +421,7 @@ export class AutharaBrowserClient extends AutharaClient {
     return this.request<API.OrganizationInvitations>(
       "GET",
       `/auth/api/v1/organizations/${encodeURIComponent(String(options.organizationID))}/invitations`,
+      { authenticated: true },
     );
   }
 
@@ -200,6 +431,7 @@ export class AutharaBrowserClient extends AutharaClient {
     return this.request<API.OrganizationInvitationEnvelope>(
       "GET",
       `/auth/api/v1/organizations/${encodeURIComponent(String(options.organizationID))}/invitations/${encodeURIComponent(String(options.invitationID))}`,
+      { authenticated: true },
     );
   }
 
@@ -209,7 +441,7 @@ export class AutharaBrowserClient extends AutharaClient {
     return this.request<API.OrganizationInvitationEnvelope>(
       "POST",
       `/auth/api/v1/organizations/${encodeURIComponent(String(options.organizationID))}/invitations/${encodeURIComponent(String(options.invitationID))}/revoke`,
-      { csrf: true },
+      { csrf: true, authenticated: true },
     );
   }
 
@@ -219,6 +451,7 @@ export class AutharaBrowserClient extends AutharaClient {
     return this.request<API.OrganizationMembers>(
       "GET",
       `/auth/api/v1/organizations/${encodeURIComponent(String(options.organizationID))}/members`,
+      { authenticated: true },
     );
   }
 
@@ -228,6 +461,7 @@ export class AutharaBrowserClient extends AutharaClient {
     return this.request<API.OrganizationMemberEnvelope>(
       "GET",
       `/auth/api/v1/organizations/${encodeURIComponent(String(options.organizationID))}/members/${encodeURIComponent(String(options.userID))}`,
+      { authenticated: true },
     );
   }
 
@@ -237,7 +471,11 @@ export class AutharaBrowserClient extends AutharaClient {
     return this.request<API.Tokens>(
       "POST",
       `/auth/api/v1/organizations/${encodeURIComponent(String(options.organizationID))}/switch`,
-      { query: { audience: options?.audience }, csrf: true },
+      {
+        query: { audience: options?.audience },
+        csrf: true,
+        authenticated: true,
+      },
     );
   }
 
@@ -269,6 +507,7 @@ export class AutharaBrowserClient extends AutharaClient {
     return this.request<void>("POST", `/auth/api/v1/passkeys/register/finish`, {
       body: options.body,
       csrf: true,
+      authenticated: true,
     });
   }
 
@@ -276,7 +515,7 @@ export class AutharaBrowserClient extends AutharaClient {
     return this.request<API.PasskeyOptions>(
       "POST",
       `/auth/api/v1/passkeys/register/options`,
-      { csrf: true },
+      { csrf: true, authenticated: true },
     );
   }
 
@@ -297,6 +536,44 @@ export class AutharaBrowserClient extends AutharaClient {
       "POST",
       `/auth/api/v1/password-reset/challenges/verify`,
       { body: options.body, csrf: true },
+    );
+  }
+
+  public startGoogleAccountRecoveryLink(
+    options: StartGoogleAccountRecoveryLinkOptions,
+  ): Promise<API.AccountRecoveryLink> {
+    return this.request<API.AccountRecoveryLink>(
+      "POST",
+      `/auth/api/v1/provider-links/recovery/google`,
+      { body: options.body, csrf: true },
+    );
+  }
+
+  public completeAccountRecoveryLinkWithGoogle(
+    options: CompleteAccountRecoveryLinkWithGoogleOptions,
+  ): Promise<API.AuthSession> {
+    return this.request<API.AuthSession>(
+      "POST",
+      `/auth/api/v1/provider-links/recovery/${encodeURIComponent(String(options.linkID))}/google`,
+      {
+        query: { audience: options?.audience },
+        body: options.body,
+        csrf: true,
+      },
+    );
+  }
+
+  public completeAccountRecoveryLinkWithPassword(
+    options: CompleteAccountRecoveryLinkWithPasswordOptions,
+  ): Promise<API.AuthSession> {
+    return this.request<API.AuthSession>(
+      "POST",
+      `/auth/api/v1/provider-links/recovery/${encodeURIComponent(String(options.linkID))}/password`,
+      {
+        query: { audience: options?.audience },
+        body: options.body,
+        csrf: true,
+      },
     );
   }
 
@@ -356,7 +633,9 @@ export class AutharaBrowserClient extends AutharaClient {
   }
 
   public getCurrentUser(): Promise<API.CurrentUser> {
-    return this.request<API.CurrentUser>("GET", `/auth/api/v1/user`);
+    return this.request<API.CurrentUser>("GET", `/auth/api/v1/user`, {
+      authenticated: true,
+    });
   }
 
   public setCurrentUserPassword(
@@ -365,6 +644,7 @@ export class AutharaBrowserClient extends AutharaClient {
     return this.request<void>("PUT", `/auth/api/v1/users/password`, {
       body: options.body,
       csrf: true,
+      authenticated: true,
     });
   }
 
@@ -374,6 +654,7 @@ export class AutharaBrowserClient extends AutharaClient {
     return this.request<API.UserMemberships>(
       "GET",
       `/auth/api/v1/users/${encodeURIComponent(String(options.userID))}/memberships`,
+      { authenticated: true },
     );
   }
 }

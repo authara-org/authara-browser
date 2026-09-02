@@ -276,6 +276,10 @@ function operationNeedsCSRF(operation) {
   );
 }
 
+function operationNeedsAuthentication(operation) {
+  return operation["x-authara-access"] === "user";
+}
+
 function operationOptions({ item, operation }) {
   const fields = [];
   for (const parameter of parametersFor({ item, operation })) {
@@ -340,6 +344,9 @@ function apiMethod({ method, route, item, operation }) {
   }
   if (bodyField) requestOptions.push(`body: options.${bodyField.name}`);
   if (operationNeedsCSRF(operation)) requestOptions.push("csrf: true");
+  if (operationNeedsAuthentication(operation)) {
+    requestOptions.push("authenticated: true");
+  }
   const request = requestOptions.length
     ? `this.request<${response}>("${method.toUpperCase()}", ${path}, { ${requestOptions.join(", ")} })`
     : `this.request<${response}>("${method.toUpperCase()}", ${path})`;
