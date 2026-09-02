@@ -14,6 +14,24 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v5
 
+      - name: Read generated source
+        id: generated-source
+        run: echo "core_sha=$(jq -r '.core.commit' .codegen/manifest.json)" >> "$GITHUB_OUTPUT"
+
+      - name: Checkout generated Core source
+        uses: actions/checkout@v5
+        with:
+          repository: authara-org/authara
+          ref: ${{ steps.generated-source.outputs.core_sha }}
+          path: .authara-core-source
+          token: ${{ secrets.AUTHARA_SDK_RELEASE_TOKEN || github.token }}
+
+      - name: Verify generated source integrity
+        run: |
+          expected_sha="$(jq -r '.core.contractSha256' .codegen/manifest.json)"
+          actual_sha="$(sha256sum .authara-core-source/contract/openapi.yaml | cut -d ' ' -f 1)"
+          test "$actual_sha" = "$expected_sha"
+
       - name: Setup Node
         uses: actions/setup-node@v5
         with:
@@ -31,6 +49,9 @@ jobs:
 
       - name: Build
         run: npm run build
+
+      - name: Check generated SDK drift
+        run: npm run check:generated -- --openapi .authara-core-source/contract/openapi.yaml
 
       - name: Run tests
         run: npm test

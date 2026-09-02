@@ -41,3 +41,6 @@ pnpm-debug.log*
 .DS_Store
 .AppleDouble
 .LSOverride
+
+# Immutable authara-core checkout used by generated-code verification
+.authara-core-source/
