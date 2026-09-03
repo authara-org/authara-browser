@@ -12,14 +12,14 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v5
+        uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
 
       - name: Read generated source
         id: generated-source
         run: echo "core_sha=$(jq -r '.core.commit' .codegen/manifest.json)" >> "$GITHUB_OUTPUT"
 
       - name: Checkout generated Core source
-        uses: actions/checkout@v5
+        uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
         with:
           repository: authara-org/authara
           ref: ${{ steps.generated-source.outputs.core_sha }}
@@ -33,7 +33,7 @@ jobs:
           test "$actual_sha" = "$expected_sha"
 
       - name: Setup Node
-        uses: actions/setup-node@v5
+        uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
         with:
           node-version: 24
           cache: npm
