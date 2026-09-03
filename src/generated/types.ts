@@ -255,7 +255,7 @@ export interface PasskeyRegistrationFinishRequest {
 }
 
 export interface PasswordLoginRequest {
-  email: string;
+  identifier: string;
   password: string;
 }
 
