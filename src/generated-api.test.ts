@@ -109,12 +109,9 @@ describe("generated regular API", () => {
       automaticRefresh: { audience: "app" },
     });
 
-    await expect(
-      client.loginWithPassword({
-        audience: "app",
-        body: { email: "user@example.com", password: "wrong" },
-      }),
-    ).rejects.toMatchObject({ status: 401 });
+    await expect(client.getGoogleLoginOptions()).rejects.toMatchObject({
+      status: 401,
+    });
     expect(fetchImpl).toHaveBeenCalledOnce();
   });
 
