@@ -53,13 +53,13 @@ jobs:
           esac
 
       - name: Checkout browser SDK
-        uses: actions/checkout@v5
+        uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
         with:
           fetch-depth: 0
           token: ${{ env.AUTOMATION_TOKEN }}
 
       - name: Checkout released Core source
-        uses: actions/checkout@v5
+        uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
         with:
           repository: authara-org/authara
           ref: ${{ env.CORE_TAG }}
@@ -75,7 +75,7 @@ jobs:
           fi
 
       - name: Set up Node
-        uses: actions/setup-node@v5
+        uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
         with:
           node-version: 24
           cache: npm
