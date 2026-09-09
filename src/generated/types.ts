@@ -112,7 +112,9 @@ export interface CurrentUser {
   username: string;
   disabled: boolean;
   created_at: string;
-  roles: Array<"authara:admin" | "authara:auditor" | "authara:monitor">;
+  roles: Array<
+    "authara:admin" | "authara:auditor" | "authara:monitor" | "authara:operator"
+  >;
   organization: OrganizationSummary;
 }
 
@@ -290,7 +292,7 @@ export interface SignupRequest {
 
 export interface TokenRefreshRequest {
   refresh_token: string;
-  audience?: "app" | "admin";
+  audience?: "app" | "admin" | "operator";
 }
 
 export interface Tokens {

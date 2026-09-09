@@ -63,12 +63,12 @@ export type PreviewInvitationOptions = {
 };
 
 export type LoginWithPasswordOptions = {
-  audience?: "app" | "admin";
+  audience?: "app" | "admin" | "operator";
   body: API.PasswordLoginRequest;
 };
 
 export type LoginWithGoogleOptions = {
-  audience?: "app" | "admin";
+  audience?: "app" | "admin" | "operator";
   body: API.GoogleLoginRequest;
 };
 
@@ -106,11 +106,11 @@ export type GetPublicOrganizationMemberOptions = {
 
 export type SwitchOrganizationOptions = {
   organizationID: string;
-  audience?: "app" | "admin";
+  audience?: "app" | "admin" | "operator";
 };
 
 export type FinishPasskeyAuthenticationOptions = {
-  audience?: "app" | "admin";
+  audience?: "app" | "admin" | "operator";
   body: API.PasskeyAuthenticationFinishRequest;
 };
 
@@ -143,7 +143,7 @@ export type CompleteAccountRecoveryLinkWithPasswordOptions = {
 };
 
 export type RefreshSessionOptions = {
-  audience?: "app" | "admin";
+  audience?: "app" | "admin" | "operator";
 };
 
 export type StartSignupChallengeOptions = {
