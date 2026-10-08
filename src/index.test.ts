@@ -91,4 +91,26 @@ describe("authFetch", () => {
     );
     expect(res.status).toBe(200);
   });
+
+  it("refreshes with explicit operator audience", async () => {
+    document.cookie = "authara_csrf=abc";
+
+    (fetch as any)
+      .mockResolvedValueOnce({ status: 401 } as Response)
+      .mockResolvedValueOnce({ ok: true, status: 200 } as Response)
+      .mockResolvedValueOnce({ status: 200 } as Response);
+
+    const res = await authFetch(
+      "/operator/api/status",
+      {},
+      { audience: "operator" },
+    );
+
+    expect(fetch).toHaveBeenNthCalledWith(
+      2,
+      "/auth/api/v1/sessions/refresh?audience=operator",
+      expect.any(Object),
+    );
+    expect(res.status).toBe(200);
+  });
 });

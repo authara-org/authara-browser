@@ -1,7 +1,21 @@
 import { getCSRFToken } from "./cookies.js";
 
 type QueryValue = string | number | boolean | Array<string | number | boolean>;
-export type AutharaAudience = "app" | "admin";
+export type AutharaAudience = "app" | "admin" | "operator";
+
+export type AutharaAuthenticationChallenge = {
+  id: string;
+  expires_at: string;
+};
+
+export type AutharaErrorDetails = {
+  error?: {
+    code?: string;
+    message?: string;
+  };
+  authentication_challenge?: AutharaAuthenticationChallenge;
+  reauthenticate_url?: string;
+};
 
 const REFRESH_PATH = "/auth/api/v1/sessions/refresh";
 
@@ -18,18 +32,25 @@ export class AutharaApiError extends Error {
   readonly status: number;
   readonly code?: string;
   readonly response: Response;
+  readonly details?: AutharaErrorDetails;
+  readonly authenticationChallenge?: AutharaAuthenticationChallenge;
+  readonly reauthenticateUrl?: string;
 
   constructor(
     status: number,
     response: Response,
     message = `Authara request failed (${status})`,
     code?: string,
+    details?: AutharaErrorDetails,
   ) {
     super(message);
     this.name = "AutharaApiError";
     this.status = status;
     this.code = code;
     this.response = response;
+    this.details = details;
+    this.authenticationChallenge = details?.authentication_challenge;
+    this.reauthenticateUrl = details?.reauthenticate_url;
   }
 }
 
@@ -115,6 +136,7 @@ export class AutharaClient {
         response,
         error?.message,
         error?.code,
+        payload,
       );
     }
 
