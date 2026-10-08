@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.7.0](https://github.com/authara-org/authara-browser/compare/v0.6.0...v0.7.0) (2026-10-08)
+
+
+### Features
+
+* expose structured authentication errors ([#18](https://github.com/authara-org/authara-browser/issues/18)) ([fe7592e](https://github.com/authara-org/authara-browser/commit/fe7592e949901eba9e8d84b4d60989450963b1c9))
+
 ## [0.6.0](https://github.com/authara-org/authara-browser/compare/v0.5.0...v0.6.0) (2026-09-09)
 
 
