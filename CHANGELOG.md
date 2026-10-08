@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.8.0](https://github.com/authara-org/authara-browser/compare/v0.7.0...v0.8.0) (2026-10-08)
+
+
+### Features
+
+* **api:** generate client from authara-core v0.22.0 ([#22](https://github.com/authara-org/authara-browser/issues/22)) ([a12fb0a](https://github.com/authara-org/authara-browser/commit/a12fb0ab1959457f9e34abb3e4670c19be6fcc9d))
+
 ## [0.7.0](https://github.com/authara-org/authara-browser/compare/v0.6.0...v0.7.0) (2026-10-08)
 
 
