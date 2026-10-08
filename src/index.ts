@@ -2,7 +2,12 @@ import { AutharaBrowserClient } from "./generated/api.js";
 export * from "./generated/api.js";
 export * from "./generated/types.js";
 export { AutharaApiError, AutharaCSRFError, AutharaClient } from "./client.js";
-export type { AutharaAudience, AutharaClientOptions } from "./client.js";
+export type {
+  AutharaAudience,
+  AutharaAuthenticationChallenge,
+  AutharaClientOptions,
+  AutharaErrorDetails,
+} from "./client.js";
 export { getCookie, getCSRFToken } from "./cookies.js";
 
 const api = new AutharaBrowserClient();
@@ -33,7 +38,7 @@ const api = new AutharaBrowserClient();
 export async function authFetch(
   input: RequestInfo | URL,
   init: RequestInit = {},
-  opts?: { audience?: "app" | "admin" },
+  opts?: { audience?: "app" | "admin" | "operator" },
 ): Promise<Response> {
   const audience = opts?.audience ?? "app";
 

@@ -100,3 +100,32 @@ jobs:
       - name: Publish to npm with Trusted Publisher
         if: steps.release.outputs.release_created == 'true'
         run: npm publish --provenance --access public
+
+      - name: Notify React package of browser release
+        if: steps.release.outputs.release_created == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.AUTHARA_SDK_RELEASE_TOKEN || github.token }}
+          BROWSER_TAG: ${{ steps.release.outputs.tag_name }}
+          BROWSER_SHA: ${{ steps.release.outputs.sha }}
+        run: |
+          if ! gh api repos/authara-org/authara-react >/dev/null 2>&1; then
+            echo "authara-org/authara-react does not exist yet; use its manual sync workflow after bootstrap."
+            exit 0
+          fi
+
+          browser_version="$(node -p "require('./package.json').version")"
+          jq -n \
+            --arg version "$browser_version" \
+            --arg tag "$BROWSER_TAG" \
+            --arg sha "$BROWSER_SHA" \
+            '{
+              event_type: "authara-browser-released",
+              client_payload: {
+                browser_version: $version,
+                browser_tag: $tag,
+                browser_sha: $sha
+              }
+            }' | gh api \
+              --method POST \
+              repos/authara-org/authara-react/dispatches \
+              --input -

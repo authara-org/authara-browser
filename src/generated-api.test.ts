@@ -52,6 +52,40 @@ describe("generated regular API", () => {
     expect(fetchImpl).toHaveBeenCalledOnce();
   });
 
+  it("preserves structured Authara error details", async () => {
+    const fetchImpl = vi.fn().mockResolvedValue({
+      ok: false,
+      status: 428,
+      json: async () => ({
+        error: {
+          code: "recent_authentication_required",
+          message: "Confirm it is you before continuing.",
+        },
+        authentication_challenge: {
+          id: "challenge-1",
+          expires_at: "2030-01-01T00:00:00Z",
+        },
+        reauthenticate_url: "/auth/reauthenticate",
+      }),
+    } as Response);
+    const client = new AutharaBrowserClient({ fetch: fetchImpl });
+
+    await expect(client.getCurrentUser()).rejects.toMatchObject({
+      name: "AutharaApiError",
+      status: 428,
+      code: "recent_authentication_required",
+      message: "Confirm it is you before continuing.",
+      authenticationChallenge: {
+        id: "challenge-1",
+        expires_at: "2030-01-01T00:00:00Z",
+      },
+      reauthenticateUrl: "/auth/reauthenticate",
+      details: {
+        error: { code: "recent_authentication_required" },
+      },
+    });
+  });
+
   it("refreshes and retries a generated call once after a 401", async () => {
     document.cookie = "authara_csrf=csrf-token";
     const fetchImpl = vi

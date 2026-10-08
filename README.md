@@ -43,7 +43,7 @@ npm install @authara/browser
 ## Generated API client
 
 ```ts
-import { AutharaBrowserClient } from "@authara/browser";
+import { AutharaApiError, AutharaBrowserClient } from "@authara/browser";
 
 const authara = new AutharaBrowserClient();
 
@@ -58,6 +58,24 @@ The generated client uses browser cookies, includes credentials, attaches the
 CSRF header when required by the contract, and throws `AutharaApiError` for
 non-successful responses. By default, it does not refresh, retry, redirect, or
 store tokens implicitly.
+
+`AutharaApiError` preserves the structured Authara error envelope. In addition
+to `status`, `code`, and `message`, recent-authentication failures expose
+`authenticationChallenge` and `reauthenticateUrl` so an application can render
+and complete the required step-up flow:
+
+```ts
+try {
+  await authara.linkCurrentUserGoogle({ body: proof });
+} catch (error) {
+  if (
+    error instanceof AutharaApiError &&
+    error.code === "recent_authentication_required"
+  ) {
+    openReauthentication(error.authenticationChallenge);
+  }
+}
+```
 
 Every public and user operation under `/auth/api/v1` is generated. Internal
 server-to-server operations under `/auth/internal/v1` are intentionally not
@@ -163,11 +181,7 @@ if (res.status === 401) {
 Admin request:
 
 ```ts
-const res = await authFetch(
-  "/admin/api/users",
-  {},
-  { audience: "admin" },
-);
+const res = await authFetch("/admin/api/users", {}, { audience: "admin" });
 ```
 
 ---
