@@ -1,10 +1,10 @@
 {
   "core": {
     "repository": "authara-org/authara",
-    "version": "v0.20.0",
-    "commit": "a6b43cb16baf768411d0cbabc847b60aa0a38f71",
+    "version": "v0.22.0",
+    "commit": "d4ed1d1c54e7629f6ea6da2650ee9299635b8204",
     "contract": "contract/openapi.yaml",
-    "contractSha256": "cd35abbc6345ecc4898590f9e3294cf2745bce9ea50e18845dcd85f64d826c23"
+    "contractSha256": "4a26624e9db9d0d6b6ab85a450bb1fd6a104f7dd5fb31948f7d02c606a1d90f2"
   },
-  "generatorCommit": "fff1c60e26212eb759e3dc3586865f6b44f317d9"
+  "generatorCommit": "57b06d402e437549af88e69b278804ce5484fcd3"
 }

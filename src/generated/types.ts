@@ -8,8 +8,10 @@ export interface APIError {
 export interface Account {
   user: AuthUser;
   sessions: Array<AccountSession>;
+  sessions_next_cursor?: string;
   auth_methods: Array<AuthMethod>;
   passkeys: Array<AccountPasskey>;
+  passkeys_next_cursor?: string;
 }
 
 export interface AccountPasskey {
@@ -17,6 +19,12 @@ export interface AccountPasskey {
   name: string;
   created_at: string;
   last_used_at?: string;
+}
+
+export interface AccountRecoveryAppleProofRequest {
+  code: string;
+  state: string;
+  invitation_token?: string;
 }
 
 export interface AccountRecoveryGoogleProofRequest {
@@ -27,7 +35,7 @@ export interface AccountRecoveryGoogleProofRequest {
 
 export interface AccountRecoveryLink {
   link_id: string;
-  proof_methods: Array<"password" | "google">;
+  proof_methods: Array<"password" | "google" | "apple">;
 }
 
 export interface AccountRecoveryPasswordProofRequest {
@@ -43,8 +51,27 @@ export interface AccountSession {
   user_agent: string;
 }
 
+export interface AppleAuthorizationRequest {
+  code: string;
+  state: string;
+  invitation_token?: string;
+}
+
+export interface AppleLoginOptions {
+  client_id: string;
+  redirect_uri: string;
+  state: string;
+  nonce: string;
+}
+
+export interface AppleReauthenticationRequest {
+  authentication_challenge_id: string;
+  code: string;
+  state: string;
+}
+
 export interface AuthMethod {
-  provider: "password" | "google";
+  provider: "password" | "google" | "apple";
   created_at: string;
 }
 
@@ -57,9 +84,20 @@ export interface AuthSession {
 export interface AuthUser {
   id: string;
   email: string;
+  email_verified: boolean;
+  email_verified_at?: string;
   username: string;
   disabled: boolean;
   created_at: string;
+}
+
+export interface AuthenticationChallenge {
+  id: string;
+  expires_at: string;
+}
+
+export interface AuthenticationChallengeReference {
+  authentication_challenge_id: string;
 }
 
 export interface CSRFToken {
@@ -104,17 +142,18 @@ export interface CurrentOrganizationMember {
 
 export interface CurrentOrganizationMembers {
   members: Array<CurrentOrganizationMember>;
+  next_cursor?: string;
 }
 
 export interface CurrentUser {
   id: string;
   email: string;
+  email_verified: boolean;
+  email_verified_at?: string;
   username: string;
   disabled: boolean;
   created_at: string;
-  roles: Array<
-    "authara:admin" | "authara:auditor" | "authara:monitor" | "authara:operator"
-  >;
+  roles: Array<"authara:admin" | "authara:operator">;
   organization: OrganizationSummary;
 }
 
@@ -124,6 +163,8 @@ export interface EmailChangeRequest {
 
 export interface ErrorResponse {
   error: APIError;
+  authentication_challenge?: AuthenticationChallenge;
+  reauthenticate_url?: string;
 }
 
 export interface GoogleLoginOptions {
@@ -132,6 +173,12 @@ export interface GoogleLoginOptions {
 }
 
 export interface GoogleLoginRequest {
+  credential: string;
+  nonce: string;
+}
+
+export interface GoogleReauthenticationRequest {
+  authentication_challenge_id: string;
   credential: string;
   nonce: string;
 }
@@ -206,6 +253,7 @@ export interface OrganizationInvitationEnvelope {
 
 export interface OrganizationInvitations {
   invitations: Array<OrganizationInvitation>;
+  next_cursor?: string;
 }
 
 export interface OrganizationMember {
@@ -223,14 +271,18 @@ export interface OrganizationMemberEnvelope {
   member: OrganizationMember;
 }
 
+export type OrganizationMemberRole = "admin" | "member";
+
 export interface OrganizationMembers {
   members: Array<OrganizationMember>;
+  next_cursor?: string;
 }
 
 export type OrganizationRole = "owner" | "admin" | "member";
 
 export interface OrganizationSummaries {
   organizations: Array<OrganizationSummary>;
+  next_cursor?: string;
 }
 
 export interface OrganizationSummary {
@@ -249,6 +301,12 @@ export interface PasskeyOptions {
   options: Record<string, unknown>;
 }
 
+export interface PasskeyReauthenticationFinishRequest {
+  authentication_challenge_id: string;
+  challenge_id: string;
+  credential: Record<string, unknown>;
+}
+
 export interface PasskeyRegistrationFinishRequest {
   challenge_id: string;
   credential: Record<string, unknown>;
@@ -258,6 +316,11 @@ export interface PasskeyRegistrationFinishRequest {
 
 export interface PasswordLoginRequest {
   identifier: string;
+  password: string;
+}
+
+export interface PasswordReauthenticationRequest {
+  authentication_challenge_id: string;
   password: string;
 }
 
@@ -300,10 +363,15 @@ export interface Tokens {
   refresh_token: string;
 }
 
+export interface UpdateOrganizationMemberRequest {
+  role: OrganizationMemberRole;
+}
+
 export interface UpdateOrganizationRequest {
   name: string;
 }
 
 export interface UserMemberships {
   memberships: Array<MembershipWithOrganization>;
+  next_cursor?: string;
 }

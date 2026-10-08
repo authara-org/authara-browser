@@ -3,12 +3,23 @@
 import { AutharaClient } from "../client.js";
 import type * as API from "./types.js";
 
+export type GetCurrentAccountOptions = {
+  sessions_cursor?: string;
+  sessions_limit?: number;
+  passkeys_cursor?: string;
+  passkeys_limit?: number;
+};
+
+export type LinkCurrentUserAppleOptions = {
+  body: API.AppleAuthorizationRequest;
+};
+
 export type LinkCurrentUserGoogleOptions = {
   body: API.GoogleLoginRequest;
 };
 
 export type UnlinkCurrentUserAuthMethodOptions = {
-  provider: "password" | "google";
+  provider: "password" | "google" | "apple";
 };
 
 export type StartCurrentUserEmailChangeOptions = {
@@ -67,9 +78,24 @@ export type LoginWithPasswordOptions = {
   body: API.PasswordLoginRequest;
 };
 
+export type LoginWithAppleOptions = {
+  audience?: "app" | "admin" | "operator";
+  body: API.AppleAuthorizationRequest;
+};
+
 export type LoginWithGoogleOptions = {
   audience?: "app" | "admin" | "operator";
   body: API.GoogleLoginRequest;
+};
+
+export type ListCurrentUserOrganizationsOptions = {
+  cursor?: string;
+  limit?: number;
+};
+
+export type ListCurrentOrganizationMembersOptions = {
+  cursor?: string;
+  limit?: number;
 };
 
 export type GetPublicOrganizationOptions = {
@@ -83,6 +109,8 @@ export type UpdatePublicOrganizationOptions = {
 
 export type ListPublicOrganizationInvitationsOptions = {
   organizationID: string;
+  cursor?: string;
+  limit?: number;
 };
 
 export type GetPublicOrganizationInvitationOptions = {
@@ -97,11 +125,19 @@ export type RevokePublicOrganizationInvitationOptions = {
 
 export type ListPublicOrganizationMembersOptions = {
   organizationID: string;
+  cursor?: string;
+  limit?: number;
 };
 
 export type GetPublicOrganizationMemberOptions = {
   organizationID: string;
   userID: string;
+};
+
+export type UpdatePublicOrganizationMemberOptions = {
+  organizationID: string;
+  userID: string;
+  body: API.UpdateOrganizationMemberRequest;
 };
 
 export type SwitchOrganizationOptions = {
@@ -130,6 +166,12 @@ export type StartGoogleAccountRecoveryLinkOptions = {
   body: API.GoogleLoginRequest;
 };
 
+export type CompleteAccountRecoveryLinkWithAppleOptions = {
+  linkID: string;
+  audience?: "app";
+  body: API.AccountRecoveryAppleProofRequest;
+};
+
 export type CompleteAccountRecoveryLinkWithGoogleOptions = {
   linkID: string;
   audience?: "app";
@@ -140,6 +182,26 @@ export type CompleteAccountRecoveryLinkWithPasswordOptions = {
   linkID: string;
   audience?: "app";
   body: API.AccountRecoveryPasswordProofRequest;
+};
+
+export type ReauthenticateWithAppleOptions = {
+  body: API.AppleReauthenticationRequest;
+};
+
+export type ReauthenticateWithGoogleOptions = {
+  body: API.GoogleReauthenticationRequest;
+};
+
+export type FinishPasskeyReauthenticationOptions = {
+  body: API.PasskeyReauthenticationFinishRequest;
+};
+
+export type BeginPasskeyReauthenticationOptions = {
+  body: API.AuthenticationChallengeReference;
+};
+
+export type ReauthenticateWithPasswordOptions = {
+  body: API.PasswordReauthenticationRequest;
 };
 
 export type RefreshSessionOptions = {
@@ -171,13 +233,33 @@ export type SetCurrentUserPasswordOptions = {
 
 export type ListPublicUserMembershipsOptions = {
   userID: string;
+  cursor?: string;
+  limit?: number;
 };
 
 export class AutharaBrowserClient extends AutharaClient {
-  public getCurrentAccount(): Promise<API.Account> {
+  public getCurrentAccount(
+    options?: GetCurrentAccountOptions,
+  ): Promise<API.Account> {
     return this.request<API.Account>("GET", `/auth/api/v1/account`, {
+      query: {
+        sessions_cursor: options?.sessions_cursor,
+        sessions_limit: options?.sessions_limit,
+        passkeys_cursor: options?.passkeys_cursor,
+        passkeys_limit: options?.passkeys_limit,
+      },
       authenticated: true,
     });
+  }
+
+  public linkCurrentUserApple(
+    options: LinkCurrentUserAppleOptions,
+  ): Promise<void> {
+    return this.request<void>(
+      "POST",
+      `/auth/api/v1/account/auth-methods/apple`,
+      { body: options.body, csrf: true, authenticated: true },
+    );
   }
 
   public linkCurrentUserGoogle(
@@ -354,6 +436,23 @@ export class AutharaBrowserClient extends AutharaClient {
     });
   }
 
+  public loginWithApple(
+    options: LoginWithAppleOptions,
+  ): Promise<API.AuthSession> {
+    return this.request<API.AuthSession>("POST", `/auth/api/v1/oauth/apple`, {
+      query: { audience: options?.audience },
+      body: options.body,
+      csrf: true,
+    });
+  }
+
+  public getAppleLoginOptions(): Promise<API.AppleLoginOptions> {
+    return this.request<API.AppleLoginOptions>(
+      "GET",
+      `/auth/api/v1/oauth/apple/options`,
+    );
+  }
+
   public loginWithGoogle(
     options: LoginWithGoogleOptions,
   ): Promise<API.AuthSession> {
@@ -371,11 +470,16 @@ export class AutharaBrowserClient extends AutharaClient {
     );
   }
 
-  public listCurrentUserOrganizations(): Promise<API.OrganizationSummaries> {
+  public listCurrentUserOrganizations(
+    options?: ListCurrentUserOrganizationsOptions,
+  ): Promise<API.OrganizationSummaries> {
     return this.request<API.OrganizationSummaries>(
       "GET",
       `/auth/api/v1/organizations`,
-      { authenticated: true },
+      {
+        query: { cursor: options?.cursor, limit: options?.limit },
+        authenticated: true,
+      },
     );
   }
 
@@ -387,11 +491,16 @@ export class AutharaBrowserClient extends AutharaClient {
     );
   }
 
-  public listCurrentOrganizationMembers(): Promise<API.CurrentOrganizationMembers> {
+  public listCurrentOrganizationMembers(
+    options?: ListCurrentOrganizationMembersOptions,
+  ): Promise<API.CurrentOrganizationMembers> {
     return this.request<API.CurrentOrganizationMembers>(
       "GET",
       `/auth/api/v1/organizations/current/members`,
-      { authenticated: true },
+      {
+        query: { cursor: options?.cursor, limit: options?.limit },
+        authenticated: true,
+      },
     );
   }
 
@@ -421,7 +530,10 @@ export class AutharaBrowserClient extends AutharaClient {
     return this.request<API.OrganizationInvitations>(
       "GET",
       `/auth/api/v1/organizations/${encodeURIComponent(String(options.organizationID))}/invitations`,
-      { authenticated: true },
+      {
+        query: { cursor: options?.cursor, limit: options?.limit },
+        authenticated: true,
+      },
     );
   }
 
@@ -451,7 +563,10 @@ export class AutharaBrowserClient extends AutharaClient {
     return this.request<API.OrganizationMembers>(
       "GET",
       `/auth/api/v1/organizations/${encodeURIComponent(String(options.organizationID))}/members`,
-      { authenticated: true },
+      {
+        query: { cursor: options?.cursor, limit: options?.limit },
+        authenticated: true,
+      },
     );
   }
 
@@ -462,6 +577,16 @@ export class AutharaBrowserClient extends AutharaClient {
       "GET",
       `/auth/api/v1/organizations/${encodeURIComponent(String(options.organizationID))}/members/${encodeURIComponent(String(options.userID))}`,
       { authenticated: true },
+    );
+  }
+
+  public updatePublicOrganizationMember(
+    options: UpdatePublicOrganizationMemberOptions,
+  ): Promise<API.OrganizationMemberEnvelope> {
+    return this.request<API.OrganizationMemberEnvelope>(
+      "PATCH",
+      `/auth/api/v1/organizations/${encodeURIComponent(String(options.organizationID))}/members/${encodeURIComponent(String(options.userID))}`,
+      { body: options.body, csrf: true, authenticated: true },
     );
   }
 
@@ -549,6 +674,20 @@ export class AutharaBrowserClient extends AutharaClient {
     );
   }
 
+  public completeAccountRecoveryLinkWithApple(
+    options: CompleteAccountRecoveryLinkWithAppleOptions,
+  ): Promise<API.AuthSession> {
+    return this.request<API.AuthSession>(
+      "POST",
+      `/auth/api/v1/provider-links/recovery/${encodeURIComponent(String(options.linkID))}/apple`,
+      {
+        query: { audience: options?.audience },
+        body: options.body,
+        csrf: true,
+      },
+    );
+  }
+
   public completeAccountRecoveryLinkWithGoogle(
     options: CompleteAccountRecoveryLinkWithGoogleOptions,
   ): Promise<API.AuthSession> {
@@ -575,6 +714,63 @@ export class AutharaBrowserClient extends AutharaClient {
         csrf: true,
       },
     );
+  }
+
+  public reauthenticateWithApple(
+    options: ReauthenticateWithAppleOptions,
+  ): Promise<void> {
+    return this.request<void>("POST", `/auth/api/v1/reauthenticate/apple`, {
+      body: options.body,
+      csrf: true,
+      authenticated: true,
+    });
+  }
+
+  public checkRecentAuthentication(): Promise<void> {
+    return this.request<void>("POST", `/auth/api/v1/reauthenticate/check`, {
+      csrf: true,
+      authenticated: true,
+    });
+  }
+
+  public reauthenticateWithGoogle(
+    options: ReauthenticateWithGoogleOptions,
+  ): Promise<void> {
+    return this.request<void>("POST", `/auth/api/v1/reauthenticate/google`, {
+      body: options.body,
+      csrf: true,
+      authenticated: true,
+    });
+  }
+
+  public finishPasskeyReauthentication(
+    options: FinishPasskeyReauthenticationOptions,
+  ): Promise<void> {
+    return this.request<void>(
+      "POST",
+      `/auth/api/v1/reauthenticate/passkeys/finish`,
+      { body: options.body, csrf: true, authenticated: true },
+    );
+  }
+
+  public beginPasskeyReauthentication(
+    options: BeginPasskeyReauthenticationOptions,
+  ): Promise<API.PasskeyOptions> {
+    return this.request<API.PasskeyOptions>(
+      "POST",
+      `/auth/api/v1/reauthenticate/passkeys/options`,
+      { body: options.body, csrf: true, authenticated: true },
+    );
+  }
+
+  public reauthenticateWithPassword(
+    options: ReauthenticateWithPasswordOptions,
+  ): Promise<void> {
+    return this.request<void>("POST", `/auth/api/v1/reauthenticate/password`, {
+      body: options.body,
+      csrf: true,
+      authenticated: true,
+    });
   }
 
   public logout(): Promise<void> {
@@ -654,7 +850,10 @@ export class AutharaBrowserClient extends AutharaClient {
     return this.request<API.UserMemberships>(
       "GET",
       `/auth/api/v1/users/${encodeURIComponent(String(options.userID))}/memberships`,
-      { authenticated: true },
+      {
+        query: { cursor: options?.cursor, limit: options?.limit },
+        authenticated: true,
+      },
     );
   }
 }
