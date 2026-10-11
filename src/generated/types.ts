@@ -28,13 +28,16 @@ export interface AccountRecoveryAppleProofRequest {
 }
 
 export interface AccountRecoveryGoogleProofRequest {
-  credential: string;
-  nonce: string;
+  credential?: string;
+  nonce?: string;
+  code?: string;
+  redirect_uri?: string;
   invitation_token?: string;
 }
 
 export interface AccountRecoveryLink {
   link_id: string;
+  provider: "google" | "apple";
   proof_methods: Array<"password" | "google" | "apple">;
 }
 
@@ -165,6 +168,7 @@ export interface ErrorResponse {
   error: APIError;
   authentication_challenge?: AuthenticationChallenge;
   reauthenticate_url?: string;
+  recovery?: AccountRecoveryLink;
 }
 
 export interface GoogleLoginOptions {
@@ -173,20 +177,26 @@ export interface GoogleLoginOptions {
 }
 
 export interface GoogleLoginRequest {
-  credential: string;
-  nonce: string;
+  credential?: string;
+  nonce?: string;
+  code?: string;
+  redirect_uri?: string;
 }
 
 export interface GoogleReauthenticationRequest {
   authentication_challenge_id: string;
-  credential: string;
-  nonce: string;
+  credential?: string;
+  nonce?: string;
+  code?: string;
+  redirect_uri?: string;
 }
 
 export interface InvitationGoogleRequest {
   token: string;
-  credential: string;
-  nonce: string;
+  credential?: string;
+  nonce?: string;
+  code?: string;
+  redirect_uri?: string;
   flow: "signup" | "login";
 }
 
