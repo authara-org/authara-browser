@@ -37,8 +37,14 @@ export interface AccountRecoveryGoogleProofRequest {
 
 export interface AccountRecoveryLink {
   link_id: string;
-  provider: "google" | "apple";
-  proof_methods: Array<"password" | "google" | "apple">;
+  provider: "google" | "apple" | "microsoft";
+  proof_methods: Array<"password" | "google" | "apple" | "microsoft">;
+}
+
+export interface AccountRecoveryMicrosoftProofRequest {
+  credential: string;
+  nonce: string;
+  invitation_token?: string;
 }
 
 export interface AccountRecoveryPasswordProofRequest {
@@ -74,7 +80,7 @@ export interface AppleReauthenticationRequest {
 }
 
 export interface AuthMethod {
-  provider: "password" | "google" | "apple";
+  provider: "password" | "google" | "apple" | "microsoft";
   created_at: string;
 }
 
@@ -231,6 +237,24 @@ export interface Membership {
 export interface MembershipWithOrganization {
   organization: Organization;
   membership: Membership;
+}
+
+export interface MicrosoftLoginOptions {
+  client_id: string;
+  authority: string;
+  nonce: string;
+}
+
+export interface MicrosoftLoginRequest {
+  credential: string;
+  nonce: string;
+  invitation_token?: string;
+}
+
+export interface MicrosoftReauthenticationRequest {
+  authentication_challenge_id: string;
+  credential: string;
+  nonce: string;
 }
 
 export interface Organization {
