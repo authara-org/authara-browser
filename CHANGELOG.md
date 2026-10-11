@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.10.0](https://github.com/authara-org/authara-browser/compare/v0.9.0...v0.10.0) (2026-10-11)
+
+
+### Features
+
+* **errors:** expose account recovery details ([#26](https://github.com/authara-org/authara-browser/issues/26)) ([9d26427](https://github.com/authara-org/authara-browser/commit/9d2642756584d2e9638b0433e794f66bb2549efb))
+
 ## [0.9.0](https://github.com/authara-org/authara-browser/compare/v0.8.0...v0.9.0) (2026-10-11)
 
 
