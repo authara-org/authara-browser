@@ -1,4 +1,5 @@
 import { getCSRFToken } from "./cookies.js";
+import type { AccountRecoveryLink } from "./generated/types.js";
 
 type QueryValue = string | number | boolean | Array<string | number | boolean>;
 export type AutharaAudience = "app" | "admin" | "operator";
@@ -15,6 +16,7 @@ export type AutharaErrorDetails = {
   };
   authentication_challenge?: AutharaAuthenticationChallenge;
   reauthenticate_url?: string;
+  recovery?: AccountRecoveryLink;
 };
 
 const REFRESH_PATH = "/auth/api/v1/sessions/refresh";
@@ -35,6 +37,7 @@ export class AutharaApiError extends Error {
   readonly details?: AutharaErrorDetails;
   readonly authenticationChallenge?: AutharaAuthenticationChallenge;
   readonly reauthenticateUrl?: string;
+  readonly recovery?: AccountRecoveryLink;
 
   constructor(
     status: number,
@@ -51,6 +54,7 @@ export class AutharaApiError extends Error {
     this.details = details;
     this.authenticationChallenge = details?.authentication_challenge;
     this.reauthenticateUrl = details?.reauthenticate_url;
+    this.recovery = details?.recovery;
   }
 }
 

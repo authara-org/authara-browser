@@ -66,6 +66,11 @@ describe("generated regular API", () => {
           expires_at: "2030-01-01T00:00:00Z",
         },
         reauthenticate_url: "/auth/reauthenticate",
+        recovery: {
+          link_id: "link-1",
+          provider: "apple",
+          proof_methods: ["google"],
+        },
       }),
     } as Response);
     const client = new AutharaBrowserClient({ fetch: fetchImpl });
@@ -80,6 +85,11 @@ describe("generated regular API", () => {
         expires_at: "2030-01-01T00:00:00Z",
       },
       reauthenticateUrl: "/auth/reauthenticate",
+      recovery: {
+        link_id: "link-1",
+        provider: "apple",
+        proof_methods: ["google"],
+      },
       details: {
         error: { code: "recent_authentication_required" },
       },
