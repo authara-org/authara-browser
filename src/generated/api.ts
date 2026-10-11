@@ -18,8 +18,12 @@ export type LinkCurrentUserGoogleOptions = {
   body: API.GoogleLoginRequest;
 };
 
+export type LinkCurrentUserMicrosoftOptions = {
+  body: API.MicrosoftLoginRequest;
+};
+
 export type UnlinkCurrentUserAuthMethodOptions = {
-  provider: "password" | "google" | "apple";
+  provider: "password" | "google" | "apple" | "microsoft";
 };
 
 export type StartCurrentUserEmailChangeOptions = {
@@ -86,6 +90,11 @@ export type LoginWithAppleOptions = {
 export type LoginWithGoogleOptions = {
   audience?: "app" | "admin" | "operator";
   body: API.GoogleLoginRequest;
+};
+
+export type LoginWithMicrosoftOptions = {
+  audience?: "app" | "admin" | "operator";
+  body: API.MicrosoftLoginRequest;
 };
 
 export type ListCurrentUserOrganizationsOptions = {
@@ -178,6 +187,12 @@ export type CompleteAccountRecoveryLinkWithGoogleOptions = {
   body: API.AccountRecoveryGoogleProofRequest;
 };
 
+export type CompleteAccountRecoveryLinkWithMicrosoftOptions = {
+  linkID: string;
+  audience?: "app";
+  body: API.AccountRecoveryMicrosoftProofRequest;
+};
+
 export type CompleteAccountRecoveryLinkWithPasswordOptions = {
   linkID: string;
   audience?: "app";
@@ -190,6 +205,10 @@ export type ReauthenticateWithAppleOptions = {
 
 export type ReauthenticateWithGoogleOptions = {
   body: API.GoogleReauthenticationRequest;
+};
+
+export type ReauthenticateWithMicrosoftOptions = {
+  body: API.MicrosoftReauthenticationRequest;
 };
 
 export type FinishPasskeyReauthenticationOptions = {
@@ -268,6 +287,16 @@ export class AutharaBrowserClient extends AutharaClient {
     return this.request<void>(
       "POST",
       `/auth/api/v1/account/auth-methods/google`,
+      { body: options.body, csrf: true, authenticated: true },
+    );
+  }
+
+  public linkCurrentUserMicrosoft(
+    options: LinkCurrentUserMicrosoftOptions,
+  ): Promise<void> {
+    return this.request<void>(
+      "POST",
+      `/auth/api/v1/account/auth-methods/microsoft`,
       { body: options.body, csrf: true, authenticated: true },
     );
   }
@@ -467,6 +496,27 @@ export class AutharaBrowserClient extends AutharaClient {
     return this.request<API.GoogleLoginOptions>(
       "GET",
       `/auth/api/v1/oauth/google/options`,
+    );
+  }
+
+  public loginWithMicrosoft(
+    options: LoginWithMicrosoftOptions,
+  ): Promise<API.AuthSession> {
+    return this.request<API.AuthSession>(
+      "POST",
+      `/auth/api/v1/oauth/microsoft`,
+      {
+        query: { audience: options?.audience },
+        body: options.body,
+        csrf: true,
+      },
+    );
+  }
+
+  public getMicrosoftLoginOptions(): Promise<API.MicrosoftLoginOptions> {
+    return this.request<API.MicrosoftLoginOptions>(
+      "GET",
+      `/auth/api/v1/oauth/microsoft/options`,
     );
   }
 
@@ -702,6 +752,20 @@ export class AutharaBrowserClient extends AutharaClient {
     );
   }
 
+  public completeAccountRecoveryLinkWithMicrosoft(
+    options: CompleteAccountRecoveryLinkWithMicrosoftOptions,
+  ): Promise<API.AuthSession> {
+    return this.request<API.AuthSession>(
+      "POST",
+      `/auth/api/v1/provider-links/recovery/${encodeURIComponent(String(options.linkID))}/microsoft`,
+      {
+        query: { audience: options?.audience },
+        body: options.body,
+        csrf: true,
+      },
+    );
+  }
+
   public completeAccountRecoveryLinkWithPassword(
     options: CompleteAccountRecoveryLinkWithPasswordOptions,
   ): Promise<API.AuthSession> {
@@ -737,6 +801,16 @@ export class AutharaBrowserClient extends AutharaClient {
     options: ReauthenticateWithGoogleOptions,
   ): Promise<void> {
     return this.request<void>("POST", `/auth/api/v1/reauthenticate/google`, {
+      body: options.body,
+      csrf: true,
+      authenticated: true,
+    });
+  }
+
+  public reauthenticateWithMicrosoft(
+    options: ReauthenticateWithMicrosoftOptions,
+  ): Promise<void> {
+    return this.request<void>("POST", `/auth/api/v1/reauthenticate/microsoft`, {
       body: options.body,
       csrf: true,
       authenticated: true,
