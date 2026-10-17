@@ -22,12 +22,14 @@ export interface AccountPasskey {
 }
 
 export interface AccountRecoveryAppleProofRequest {
+  challenge_id?: string;
   code: string;
   state: string;
   invitation_token?: string;
 }
 
 export interface AccountRecoveryGoogleProofRequest {
+  challenge_id?: string;
   credential?: string;
   nonce?: string;
   code?: string;
@@ -42,6 +44,7 @@ export interface AccountRecoveryLink {
 }
 
 export interface AccountRecoveryMicrosoftProofRequest {
+  challenge_id?: string;
   credential: string;
   nonce: string;
   invitation_token?: string;
@@ -61,12 +64,14 @@ export interface AccountSession {
 }
 
 export interface AppleAuthorizationRequest {
+  challenge_id?: string;
   code: string;
   state: string;
   invitation_token?: string;
 }
 
 export interface AppleLoginOptions {
+  challenge_id?: string;
   client_id: string;
   redirect_uri: string;
   state: string;
@@ -75,6 +80,7 @@ export interface AppleLoginOptions {
 
 export interface AppleReauthenticationRequest {
   authentication_challenge_id: string;
+  challenge_id?: string;
   code: string;
   state: string;
 }
@@ -178,11 +184,13 @@ export interface ErrorResponse {
 }
 
 export interface GoogleLoginOptions {
+  challenge_id?: string;
   client_id: string;
   nonce: string;
 }
 
 export interface GoogleLoginRequest {
+  challenge_id?: string;
   credential?: string;
   nonce?: string;
   code?: string;
@@ -191,6 +199,7 @@ export interface GoogleLoginRequest {
 
 export interface GoogleReauthenticationRequest {
   authentication_challenge_id: string;
+  challenge_id?: string;
   credential?: string;
   nonce?: string;
   code?: string;
@@ -240,12 +249,14 @@ export interface MembershipWithOrganization {
 }
 
 export interface MicrosoftLoginOptions {
+  challenge_id?: string;
   client_id: string;
   authority: string;
   nonce: string;
 }
 
 export interface MicrosoftLoginRequest {
+  challenge_id?: string;
   credential: string;
   nonce: string;
   invitation_token?: string;
@@ -253,6 +264,7 @@ export interface MicrosoftLoginRequest {
 
 export interface MicrosoftReauthenticationRequest {
   authentication_challenge_id: string;
+  challenge_id?: string;
   credential: string;
   nonce: string;
 }
@@ -390,6 +402,10 @@ export interface SignupRequest {
 export interface TokenRefreshRequest {
   refresh_token: string;
   audience?: "app" | "admin" | "operator";
+}
+
+export interface TokenRevocationRequest {
+  refresh_token: string;
 }
 
 export interface Tokens {
