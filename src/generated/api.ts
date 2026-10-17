@@ -55,6 +55,7 @@ export type ChangeCurrentUsernameOptions = {
 };
 
 export type ResendChallengeOptions = {
+  session_transport?: "cookie" | "token";
   body: API.ChallengeReference;
 };
 
@@ -79,22 +80,38 @@ export type PreviewInvitationOptions = {
 
 export type LoginWithPasswordOptions = {
   audience?: "app" | "admin" | "operator";
+  session_transport?: "cookie" | "token";
   body: API.PasswordLoginRequest;
 };
 
 export type LoginWithAppleOptions = {
   audience?: "app" | "admin" | "operator";
+  session_transport?: "cookie" | "token";
   body: API.AppleAuthorizationRequest;
+};
+
+export type GetAppleLoginOptionsOptions = {
+  session_transport?: "cookie" | "token";
 };
 
 export type LoginWithGoogleOptions = {
   audience?: "app" | "admin" | "operator";
+  session_transport?: "cookie" | "token";
   body: API.GoogleLoginRequest;
+};
+
+export type GetGoogleLoginOptionsOptions = {
+  session_transport?: "cookie" | "token";
 };
 
 export type LoginWithMicrosoftOptions = {
   audience?: "app" | "admin" | "operator";
+  session_transport?: "cookie" | "token";
   body: API.MicrosoftLoginRequest;
+};
+
+export type GetMicrosoftLoginOptionsOptions = {
+  session_transport?: "cookie" | "token";
 };
 
 export type ListCurrentUserOrganizationsOptions = {
@@ -156,7 +173,12 @@ export type SwitchOrganizationOptions = {
 
 export type FinishPasskeyAuthenticationOptions = {
   audience?: "app" | "admin" | "operator";
+  session_transport?: "cookie" | "token";
   body: API.PasskeyAuthenticationFinishRequest;
+};
+
+export type BeginPasskeyAuthenticationOptions = {
+  session_transport?: "cookie" | "token";
 };
 
 export type FinishPasskeyRegistrationOptions = {
@@ -164,10 +186,12 @@ export type FinishPasskeyRegistrationOptions = {
 };
 
 export type StartPasswordResetChallengeOptions = {
+  session_transport?: "cookie" | "token";
   body: API.PasswordResetRequest;
 };
 
 export type VerifyPasswordResetChallengeOptions = {
+  session_transport?: "cookie" | "token";
   body: API.PasswordResetChallengeVerification;
 };
 
@@ -229,21 +253,28 @@ export type RefreshSessionOptions = {
 
 export type StartSignupChallengeOptions = {
   audience?: "app";
+  session_transport?: "cookie" | "token";
   body: API.SignupRequest;
 };
 
 export type VerifySignupChallengeOptions = {
   audience?: "app";
+  session_transport?: "cookie" | "token";
   body: API.SignupChallengeVerification;
 };
 
 export type SignupDirectOptions = {
   audience?: "app";
+  session_transport?: "cookie" | "token";
   body: API.SignupRequest;
 };
 
 export type RefreshTokensOptions = {
   body: API.TokenRefreshRequest;
+};
+
+export type RevokeTokensOptions = {
+  body: API.TokenRevocationRequest;
 };
 
 export type SetCurrentUserPasswordOptions = {
@@ -397,6 +428,7 @@ export class AutharaBrowserClient extends AutharaClient {
 
   public resendChallenge(options: ResendChallengeOptions): Promise<void> {
     return this.request<void>("POST", `/auth/api/v1/challenges/resend`, {
+      query: { session_transport: options?.session_transport },
       body: options.body,
       csrf: true,
     });
@@ -459,7 +491,10 @@ export class AutharaBrowserClient extends AutharaClient {
     options: LoginWithPasswordOptions,
   ): Promise<API.AuthSession> {
     return this.request<API.AuthSession>("POST", `/auth/api/v1/login`, {
-      query: { audience: options?.audience },
+      query: {
+        audience: options?.audience,
+        session_transport: options?.session_transport,
+      },
       body: options.body,
       csrf: true,
     });
@@ -469,16 +504,22 @@ export class AutharaBrowserClient extends AutharaClient {
     options: LoginWithAppleOptions,
   ): Promise<API.AuthSession> {
     return this.request<API.AuthSession>("POST", `/auth/api/v1/oauth/apple`, {
-      query: { audience: options?.audience },
+      query: {
+        audience: options?.audience,
+        session_transport: options?.session_transport,
+      },
       body: options.body,
       csrf: true,
     });
   }
 
-  public getAppleLoginOptions(): Promise<API.AppleLoginOptions> {
+  public getAppleLoginOptions(
+    options?: GetAppleLoginOptionsOptions,
+  ): Promise<API.AppleLoginOptions> {
     return this.request<API.AppleLoginOptions>(
       "GET",
       `/auth/api/v1/oauth/apple/options`,
+      { query: { session_transport: options?.session_transport } },
     );
   }
 
@@ -486,16 +527,22 @@ export class AutharaBrowserClient extends AutharaClient {
     options: LoginWithGoogleOptions,
   ): Promise<API.AuthSession> {
     return this.request<API.AuthSession>("POST", `/auth/api/v1/oauth/google`, {
-      query: { audience: options?.audience },
+      query: {
+        audience: options?.audience,
+        session_transport: options?.session_transport,
+      },
       body: options.body,
       csrf: true,
     });
   }
 
-  public getGoogleLoginOptions(): Promise<API.GoogleLoginOptions> {
+  public getGoogleLoginOptions(
+    options?: GetGoogleLoginOptionsOptions,
+  ): Promise<API.GoogleLoginOptions> {
     return this.request<API.GoogleLoginOptions>(
       "GET",
       `/auth/api/v1/oauth/google/options`,
+      { query: { session_transport: options?.session_transport } },
     );
   }
 
@@ -506,17 +553,23 @@ export class AutharaBrowserClient extends AutharaClient {
       "POST",
       `/auth/api/v1/oauth/microsoft`,
       {
-        query: { audience: options?.audience },
+        query: {
+          audience: options?.audience,
+          session_transport: options?.session_transport,
+        },
         body: options.body,
         csrf: true,
       },
     );
   }
 
-  public getMicrosoftLoginOptions(): Promise<API.MicrosoftLoginOptions> {
+  public getMicrosoftLoginOptions(
+    options?: GetMicrosoftLoginOptionsOptions,
+  ): Promise<API.MicrosoftLoginOptions> {
     return this.request<API.MicrosoftLoginOptions>(
       "GET",
       `/auth/api/v1/oauth/microsoft/options`,
+      { query: { session_transport: options?.session_transport } },
     );
   }
 
@@ -661,18 +714,23 @@ export class AutharaBrowserClient extends AutharaClient {
       "POST",
       `/auth/api/v1/passkeys/authenticate/finish`,
       {
-        query: { audience: options?.audience },
+        query: {
+          audience: options?.audience,
+          session_transport: options?.session_transport,
+        },
         body: options.body,
         csrf: true,
       },
     );
   }
 
-  public beginPasskeyAuthentication(): Promise<API.PasskeyOptions> {
+  public beginPasskeyAuthentication(
+    options?: BeginPasskeyAuthenticationOptions,
+  ): Promise<API.PasskeyOptions> {
     return this.request<API.PasskeyOptions>(
       "POST",
       `/auth/api/v1/passkeys/authenticate/options`,
-      { csrf: true },
+      { query: { session_transport: options?.session_transport }, csrf: true },
     );
   }
 
@@ -700,7 +758,11 @@ export class AutharaBrowserClient extends AutharaClient {
     return this.request<API.ChallengeReference>(
       "POST",
       `/auth/api/v1/password-reset/challenges`,
-      { body: options.body, csrf: true },
+      {
+        query: { session_transport: options?.session_transport },
+        body: options.body,
+        csrf: true,
+      },
     );
   }
 
@@ -710,7 +772,11 @@ export class AutharaBrowserClient extends AutharaClient {
     return this.request<void>(
       "POST",
       `/auth/api/v1/password-reset/challenges/verify`,
-      { body: options.body, csrf: true },
+      {
+        query: { session_transport: options?.session_transport },
+        body: options.body,
+        csrf: true,
+      },
     );
   }
 
@@ -867,7 +933,10 @@ export class AutharaBrowserClient extends AutharaClient {
       "POST",
       `/auth/api/v1/signup/challenges`,
       {
-        query: { audience: options?.audience },
+        query: {
+          audience: options?.audience,
+          session_transport: options?.session_transport,
+        },
         body: options.body,
         csrf: true,
       },
@@ -881,7 +950,10 @@ export class AutharaBrowserClient extends AutharaClient {
       "POST",
       `/auth/api/v1/signup/challenges/verify`,
       {
-        query: { audience: options?.audience },
+        query: {
+          audience: options?.audience,
+          session_transport: options?.session_transport,
+        },
         body: options.body,
         csrf: true,
       },
@@ -890,7 +962,10 @@ export class AutharaBrowserClient extends AutharaClient {
 
   public signupDirect(options: SignupDirectOptions): Promise<API.AuthSession> {
     return this.request<API.AuthSession>("POST", `/auth/api/v1/signup/direct`, {
-      query: { audience: options?.audience },
+      query: {
+        audience: options?.audience,
+        session_transport: options?.session_transport,
+      },
       body: options.body,
       csrf: true,
     });
@@ -898,6 +973,12 @@ export class AutharaBrowserClient extends AutharaClient {
 
   public refreshTokens(options: RefreshTokensOptions): Promise<API.Tokens> {
     return this.request<API.Tokens>("POST", `/auth/api/v1/tokens/refresh`, {
+      body: options.body,
+    });
+  }
+
+  public revokeTokens(options: RevokeTokensOptions): Promise<void> {
+    return this.request<void>("POST", `/auth/api/v1/tokens/revoke`, {
       body: options.body,
     });
   }
