@@ -287,6 +287,7 @@ export interface OrganizationInvitation {
   organization_id: string;
   email: string;
   role: OrganizationRole;
+  delivery_profile?: string;
   metadata: Record<string, unknown>;
   status: "pending" | "accepted" | "revoked" | "expired";
   expires_at: string;
