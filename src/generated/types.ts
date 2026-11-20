@@ -94,6 +94,7 @@ export interface AuthSession {
   user: AuthUser;
   access_token: string;
   refresh_token: string;
+  organization_state: OrganizationSessionState;
 }
 
 export interface AuthUser {
@@ -145,6 +146,10 @@ export interface ChangePasswordRequest {
 
 export interface ChangeUsernameRequest {
   username: string;
+}
+
+export interface CreateOrganizationRequest {
+  name: string;
 }
 
 export interface CurrentOrganizationMember {
@@ -326,6 +331,12 @@ export interface OrganizationMembers {
 }
 
 export type OrganizationRole = "owner" | "admin" | "member";
+
+export interface OrganizationSessionState {
+  status: "active" | "organization_required";
+  can_accept_invitation: boolean;
+  can_create_organization: boolean;
+}
 
 export interface OrganizationSummaries {
   organizations: Array<OrganizationSummary>;

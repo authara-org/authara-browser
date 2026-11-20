@@ -119,6 +119,11 @@ export type ListCurrentUserOrganizationsOptions = {
   limit?: number;
 };
 
+export type CreateOrganizationForCurrentUserOptions = {
+  audience?: "app";
+  body: API.CreateOrganizationRequest;
+};
+
 export type ListCurrentOrganizationMembersOptions = {
   cursor?: string;
   limit?: number;
@@ -584,6 +589,17 @@ export class AutharaBrowserClient extends AutharaClient {
         authenticated: true,
       },
     );
+  }
+
+  public createOrganizationForCurrentUser(
+    options: CreateOrganizationForCurrentUserOptions,
+  ): Promise<API.AuthSession> {
+    return this.request<API.AuthSession>("POST", `/auth/api/v1/organizations`, {
+      query: { audience: options?.audience },
+      body: options.body,
+      csrf: true,
+      authenticated: true,
+    });
   }
 
   public getCurrentOrganization(): Promise<API.OrganizationSummary> {
